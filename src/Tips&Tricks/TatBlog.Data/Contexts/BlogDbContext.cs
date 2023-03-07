@@ -11,21 +11,29 @@ namespace TatBlog.Data.Contexts;
 
 public class BlogDbContext : DbContext
 {
-	public DbSet<Author> Authors { get; set; }
-	public DbSet<Category> Categories { get; set; }
-	public DbSet<Post> Posts { get; set; }
-	public DbSet<Tag> Tags { get; set; }
+    public DbSet<Author> Authors { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<Tag> Tags { get; set; }
 
-	protected override void OnConfiguring(
-		DbContextOptionsBuilder optionsBuilder)
-	{
-		optionsBuilder.UseSqlServer(@"Server=localhost;Database=TatBlog;
-Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
-	}
+    //	protected override void OnConfiguring(
+    //		DbContextOptionsBuilder optionsBuilder)
+    //	{
+    //		optionsBuilder.UseSqlServer(@"Server=localhost;Database=TatBlog;
+    //Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
+    //	}
 
-	protected override void OnModelCreating(ModelBuilder modelBuilder)
-	{
-		modelBuilder.ApplyConfigurationsFromAssembly(
-			typeof(CategoryMap).Assembly);
-	}
+    public BlogDbContext(DbContextOptions<BlogDbContext> options)
+        : base(options)
+    { }
+
+    public BlogDbContext()
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            typeof(CategoryMap).Assembly);
+    }
 }

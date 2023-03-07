@@ -426,10 +426,12 @@ namespace TatBlog.WinApp
         // 1.S: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
         // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
 
+
         // 1.T: Tương tự câu trên nhưng yêu cầu trả về kiểu IPagedList<T>. Trong đó T
         // là kiểu dữ liệu của đối tượng mới được tạo từ đối tượng Post.Hàm này có
         // thêm một đầu vào là Func<IQueryable<Post>, IQueryable<T>> mapper
         // để ánh xạ các đối tượng Post thành các đối tượng T theo yêu cầu
+       
         #endregion
 
         #region Phần C.2
