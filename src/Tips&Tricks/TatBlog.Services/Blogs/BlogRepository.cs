@@ -444,6 +444,19 @@ public class BlogRepository : IBlogRepository
             .ToPagedListAsync(pagingParams, cancellationToken);
     }
 
+    //public async Task<IPagedList<Post>> GetPagedPostsAsync(
+    //        PostQuery pq,
+    //        int pageNumber = 1,
+    //        int pageSize = 10,
+    //        CancellationToken cancellationToken = default)
+    //{
+    //    return await FilterPost(pq)
+    //        .ToPagedListAsync(
+    //            pageNumber, pageSize,
+    //            nameof(Post.PostedDate), "DESC",
+    //            cancellationToken);
+    //}
+
     public async Task<IPagedList<Post>> GetPagedPostQueryAsync(
             PostQuery pq,
             int pageNumber,
