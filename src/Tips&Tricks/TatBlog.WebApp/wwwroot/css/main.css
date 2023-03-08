@@ -1,6 +1,4 @@
-﻿namespace TatBlog.WebApp.wwwroot.css
+﻿a
 {
-    public class main
-    {
-    }
+    text-decoration :none;
 }
