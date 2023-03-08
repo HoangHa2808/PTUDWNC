@@ -387,26 +387,96 @@ public class BlogRepository : IBlogRepository
     // 1.q: Tìm tất cả bài viết thỏa mãn điều kiện tìm kiếm được cho trong đối tượng
     // PostQuery(kết quả trả về kiểu IList<Post>)
 
-    public Task<IList<Post>> FindAllPostsWithPostQueryAsync(PostQuery pq, CancellationToken cancellationToken = default)
+    public async Task<IList<Post>> FindAllPostsWithPostQueryAsync(PostQuery pq, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await _context.Set<Post>()
+                .Include(c => c.Category)
+                .Include(t => t.Tags)
+                .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
+                .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
+                .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
+                .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
+                .WhereIf(pq.PostedYear > 0, p => p.PostedDate.Year == pq.PostedYear)
+                .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
+                .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
+                .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
+                .ToListAsync(cancellationToken);
     }
 
     // 1.r: Đếm số lượng bài viết thỏa mãn điều kiện tìm kiếm được cho trong đối tượng PostQuery
 
-    public Task<int> CountPostsWithPostQueryAsync(PostQuery pq, CancellationToken cancellationToken = default)
+    public async Task<int> CountPostsWithPostQueryAsync(PostQuery pq,
+             CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await _context.Set<Post>()
+            .Include(c => c.Category)
+            .Include(t => t.Tags)
+            .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
+            .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
+            .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
+            .WhereIf(pq.PostedYear > 0, p => p.PostedDate.Year == pq.PostedYear)
+            .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
+            .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
+            .CountAsync(cancellationToken);
     }
 
     // 1.s: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
     // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
+    public async Task<IPagedList<Post>> GetPagedPostQueryAsync(
+            PostQuery pq,
+            IPagingParams pagingParams,
+            CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Post>()
+            .Include(c => c.Category)
+            .Include(t => t.Tags)
+            .Include(a => a.Author)
+            .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
+            .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
+            .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
+            .WhereIf(pq.PostedYear > 0, p => p.PostedDate.Year == pq.PostedYear)
+            .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
+            .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
+            .ToPagedListAsync(pagingParams, cancellationToken);
+    }
 
+    public async Task<IPagedList<Post>> GetPagedPostQueryAsync(
+            PostQuery pq,
+            int pageNumber,
+            int pageSize,
+            CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Post>()
+            .Include(c => c.Category)
+            .Include(t => t.Tags)
+            .Include(a => a.Author)
+            .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
+            .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
+            .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
+            .WhereIf(pq.PostedYear > 0, p => p.PostedDate.Year == pq.PostedYear)
+            .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
+            .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
+            .WhereIf(pq.PublishedOnly, p => p.Published == true)
+            .ToPagedListAsync(pageNumber, pageSize,"Id","DESC",cancellationToken);
+    }
+   
     // 1.t: Tương tự câu trên nhưng yêu cầu trả về kiểu IPagedList<T>. Trong đó T
     // là kiểu dữ liệu của đối tượng mới được tạo từ đối tượng Post.Hàm này có
     // thêm một đầu vào là Func<IQueryable<Post>, IQueryable<T>> mapper
     // để ánh xạ các đối tượng Post thành các đối tượng T theo yêu cầu
-
+    public async Task<IPagedList<T>> GetPagedPostQueryAsync<T>(
+            PostQuery pq,
+            Func<IQueryable<Post>, IQueryable<T>> mapper,
+            CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 
     #region Phần C.2

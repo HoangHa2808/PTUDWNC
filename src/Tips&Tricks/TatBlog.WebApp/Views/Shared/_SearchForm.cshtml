@@ -1,0 +1,20 @@
+﻿<div class="mb-4">
+    <form asp-controller="Blog"
+          asp-action="Index"
+          method="get">
+        <div class="input-group mb-3">
+            <input type="text"
+                   class="form-control"
+                   name="k"
+                   placeholder="Enter keywork"
+                   aria-label="Enter keywork"
+                   aria-describedby="btnSearchPost">
+
+            <button class="btn btn-outline-secondary"
+                    type="button"
+                    id="btnSearchPost">
+                <i class="fa fa-search"></i>
+            </button>
+        </div>
+    </form>
+</div>

@@ -91,6 +91,7 @@ namespace TatBlog.Services.Blogs
 
         // 1.m: Thêm hay cập nhật một bài viết
         Task AddOrUpdatePostAsync(Post postsName,CancellationToken cancellationToken = default);
+       
         // 1.n: Chuyển đổi trạng thái Published của bài viết
         Task PublishedAsync(
         int id,
@@ -111,17 +112,33 @@ namespace TatBlog.Services.Blogs
         Task<IList<Post>> FindAllPostsWithPostQueryAsync(
             PostQuery pq,
             CancellationToken cancellationToken = default);
+       
         // 1.r: Đếm số lượng bài viết thỏa mãn điều kiện tìm kiếm được cho trong đối tượng PostQuery
         Task<int> CountPostsWithPostQueryAsync(
             PostQuery pq,
             CancellationToken cancellationToken = default);
+       
         // 1.s: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
         // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
+        Task<IPagedList<Post>> GetPagedPostQueryAsync(
+           PostQuery pq,
+           IPagingParams pagingParams,
+           CancellationToken cancellationToken = default);
+        Task<IPagedList<Post>> GetPagedPostQueryAsync(
+            PostQuery pq,
+            int pageNumber,
+            int pageSize,
+            CancellationToken cancellationToken = default);
 
         // 1.t: Tương tự câu trên nhưng yêu cầu trả về kiểu IPagedList<T>. Trong đó T
         // là kiểu dữ liệu của đối tượng mới được tạo từ đối tượng Post.Hàm này có
         // thêm một đầu vào là Func<IQueryable<Post>, IQueryable<T>> mapper
         // để ánh xạ các đối tượng Post thành các đối tượng T theo yêu cầu
+        Task<IPagedList<T>> GetPagedPostQueryAsync<T>(
+           PostQuery pq,
+           Func<IQueryable<Post>, IQueryable<T>> mapper,
+           CancellationToken cancellationToken = default);
+
         #endregion
 
         #region Phần C.2
