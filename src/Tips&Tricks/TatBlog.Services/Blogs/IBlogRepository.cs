@@ -87,10 +87,10 @@ namespace TatBlog.Services.Blogs
         int n, CancellationToken cancellationToken = default);
 
         // 1.l: Tìm một bài viết theo mã số
-        Task<Post> FindPostByIDAsync(int id,CancellationToken cancellationToken = default);
+        Task<Post> FindPostByIDAsync(int id, CancellationToken cancellationToken = default);
 
         // 1.m: Thêm hay cập nhật một bài viết
-        Task AddOrUpdatePostAsync(Post postsName,CancellationToken cancellationToken = default);
+        Task AddOrUpdatePostAsync(Post postsName, CancellationToken cancellationToken = default);
         // 1.n: Chuyển đổi trạng thái Published của bài viết
         Task PublishedAsync(
         int id,
@@ -125,6 +125,33 @@ namespace TatBlog.Services.Blogs
         #endregion
 
         #region Phần C.2
+        //Câu 2. A : Tạo interface IAuthorRepository và lớp AuthorRepository. 
+        //Câu 2. B : Tìm một tác giả theo mã số
+        Task<Author> GetAuthorByIdAsync(int Id, CancellationToken cancellationToken = default);
+
+        //Câu 2. C : Tìm một tác giả theo tên định danh (slug). 
+        Task<Author> GetAuthorByUrlSlugAsync(string Slug, CancellationToken cancellationToken = default);
+
+        //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
+        //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
+        Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(
+            IPagingParams pagingParams,
+            CancellationToken cancellationToken = default);
+
+        //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả.
+        Task AddAuthorAsync(
+            Author author,
+            CancellationToken cancellationToken = default);
+
+        //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.
+        Task<IList<Author>> ListAuthorAsync(int N, CancellationToken cancellationToken = default);
+        #endregion
+
+        #region Phần C.3
+
+        #endregion
+
+        #region Phần C.4
 
         #endregion
     }
