@@ -13,7 +13,7 @@ namespace TatBlog.WebApp.Controllers
             _blogRepository = blogRepository;
         }
 
-
+        #region _SearchForm
         public async Task<IActionResult> Index(
             [FromQuery(Name = "k")] string keyword = null,
             [FromQuery(Name = "p")] int pageNumber = 1,
@@ -31,7 +31,7 @@ namespace TatBlog.WebApp.Controllers
 
             //Truy vấn các bài viết theo điều kiện để tạo
             var postsList = await _blogRepository
-                .GetPagedPostQueryAsync(postQuery, pageNumber, pageSize);
+                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
 
             //Lưu lại điều kiện truy vấn để hiển thị trong View
             ViewBag.PostQuery = postQuery;
@@ -40,77 +40,159 @@ namespace TatBlog.WebApp.Controllers
             // Truyền danh sách bài viết vào View để render ra HTML
             return View(postsList);
         }
+        #endregion
 
-        //Hiển thị danh sách bài viết thuộc chủ đề
+
+        #region Hiển thị danh sách bài viết thuộc chủ đề
         public async Task<IActionResult> Category(
-             [FromQuery(Name = "s")] string slugPost = null)
+            string keyword = null,
+             string slug = null,
+             int pageNumber = 1,
+             int pageSize = 3)
         {
+
             var postQuery = new PostQuery()
             {
-                //Lấy danh sách bài viết thuộc chủ đề
-                CategorySlug = slugPost
+                PublishedOnly = true,
+                Keyword = keyword,
+                CategorySlug = slug
             };
-           
+
             var postsList = await _blogRepository
-                .FindAllPostsWithPostQueryAsync(postQuery);
+                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
 
             ViewBag.PostQuery = postQuery;
+            //ViewBag.
 
-           
             return View(postsList);
         }
+        #endregion
 
-        //Hiển thị danh sách bài viết theo tác giả
+
+        #region Hiển thị danh sách bài viết theo tác giả
         public async Task<IActionResult> Author(
-            [FromQuery(Name = "a")] string slugPost = null)
+            string slugPost = null,
+            string keyword = null,
+             int pageNumber = 1,
+             int pageSize = 3)
         {
-            var authorQuery = new PostQuery()
+
+            var postQuery = new PostQuery()
             {
-                //Lấy danh sách bài viết theo tác giả
+                
+                PublishedOnly = true,
+                Keyword = keyword,
                 AuthorSlug = slugPost
             };
 
             var postsList = await _blogRepository
-                .FindAllPostsWithPostQueryAsync(authorQuery);
+                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
 
-            ViewBag.PostQuery = authorQuery;
+            ViewBag.PostQuery = postQuery;
+            //ViewBag.
 
-            
             return View(postsList);
         }
+        #endregion
 
-        //Hiển thị danh sách bài viết chứa thẻ
-        public async Task<IActionResult> Tag()
+
+        #region Hiển thị danh sách bài viết chứa thẻ
+        public async Task<IActionResult> Tag(
+            string slugPost = null,
+            string keyword = null,
+             int pageNumber = 1,
+             int pageSize = 3)
         {
-        return View();
-        }
 
-        // Hiển thị chi tiết 1 bài viết khi người dùng nhấn vào
-        // nút Xem chi tiết hoặc tiêu đề bài viết ở trang chủ
-        public async Task<IActionResult> Post()
+            var postQuery = new PostQuery()
+            {
+
+                PublishedOnly = true,
+                Keyword = keyword,
+                TagSlug = slugPost
+            };
+
+            var postsList = await _blogRepository
+                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
+
+            ViewBag.PostQuery = postQuery;
+            //ViewBag.
+
+            return View(postsList);
+        }
+            #endregion
+
+
+            #region Hiển thị chi tiết 1 bài viết khi người dùng nhấn vào
+            // nút Xem chi tiết hoặc tiêu đề bài viết ở trang chủ
+            public async Task<IActionResult> Post(
+                string slugPost = null,
+            string keyword = null,
+             int pageNumber = 1,
+             int pageSize = 3)
         {
-            return View();
-        }
 
-        // Hiển thị danh sách bài viết được đăng
-        // trong tháng và năm đã chọn
-        public async Task<IActionResult> Archives()
+            var postQuery = new PostQuery()
+            {
+
+                PublishedOnly = true,
+                Keyword = keyword
+            };
+
+            var postsList = await _blogRepository
+                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
+
+            ViewBag.PostQuery = postQuery;
+            //ViewBag.
+
+            return View(postsList);
+        }
+        #endregion
+
+
+        #region Hiển thị danh sách bài viết được đăng trong tháng và năm đã chọn
+        public async Task<IActionResult> Archives(
+            string slugPost,
+            int year, int month, int day,
+            string keyword = null,
+             int pageNumber = 1,
+             int pageSize = 3)
         {
-            return View();
-        }
 
-        // Hiển thị thông tin liên hệ, bản đồ
-        // và form để gửi ý kiến
+            var postQuery = new PostQuery()
+            {
+
+                PublishedOnly = true,
+                Keyword = keyword,
+                PostSlug = slugPost,
+               
+            };
+
+            var postsList = await _blogRepository
+                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
+
+            ViewBag.PostQuery = postQuery;
+            //ViewBag.
+
+            return View(postsList);
+        }
+        #endregion
+
+
+        #region Hiển thị thông tin liên hệ, bản đồ và form để gửi ý kiến
         public async Task<IActionResult> Contact()
         {
             return View();
         }
+        #endregion
 
-        // Hiển thị trang giới thiệu về blog (nội dung tĩnh)
+
+        #region Hiển thị trang giới thiệu về blog (nội dung tĩnh)
         public IActionResult About()
         {
             return View();
         }
+        #endregion
 
 
         public IActionResult Rss()

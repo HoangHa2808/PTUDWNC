@@ -117,18 +117,28 @@ namespace TatBlog.Services.Blogs
         Task<int> CountPostsWithPostQueryAsync(
             PostQuery pq,
             CancellationToken cancellationToken = default);
-       
+
         // 1.s: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
         // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
-        Task<IPagedList<Post>> GetPagedPostQueryAsync(
-           PostQuery pq,
-           IPagingParams pagingParams,
-           CancellationToken cancellationToken = default);
-        Task<IPagedList<Post>> GetPagedPostQueryAsync(
-            PostQuery pq,
-            int pageNumber,
-            int pageSize,
+        Task<IPagedList<Post>> GetPagedPostsAsync(PostQuery pq,
+            IPagingParams pagingParams,
             CancellationToken cancellationToken = default);
+
+        IQueryable<Post> FilterPost(PostQuery pq);
+        Task<IPagedList<Post>> GetPagedPostAsync(
+                PostQuery pq,
+                int pageNumber = 1,
+                int pageSize = 10,
+                CancellationToken cancellationToken = default);
+        //Task <IPagedList<Post>> GetPagedPostQueryAsync(
+        //   PostQuery pq,
+        //   IPagingParams pagingParams,
+        //   CancellationToken cancellationToken = default);
+        //Task <IPagedList<Post>> GetPagedPostQueryAsync(
+        //    PostQuery pq,
+        //    int pageNumber,
+        //    int pageSize,
+        //    CancellationToken cancellationToken = default);
 
         // 1.t: Tương tự câu trên nhưng yêu cầu trả về kiểu IPagedList<T>. Trong đó T
         // là kiểu dữ liệu của đối tượng mới được tạo từ đối tượng Post.Hàm này có
@@ -142,7 +152,25 @@ namespace TatBlog.Services.Blogs
         #endregion
 
         #region Phần C.2
-
+        //Câu 2. A : Tạo interface IAuthorRepository và lớp AuthorRepository. 
+        //Câu 2. B : Tìm một tác giả theo mã số
+        Task<Author> GetAuthorByIdAsync(int Id, CancellationToken cancellationToken = default);
+        
+        //Câu 2. C : Tìm một tác giả theo tên định danh (slug). 
+        Task<Author> GetAuthorByUrlSlugAsync(string Slug, CancellationToken cancellationToken = default);
+        
+        //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
+        //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
+        Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(
+            IPagingParams pagingParams,
+            CancellationToken cancellationToken = default);
+        
+        //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả.
+        Task AddAuthorAsync(
+            Author author,
+            CancellationToken cancellationToken = default);
+        //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.
+        Task<IList<Author>> ListAuthorAsync(int N, CancellationToken cancellationToken = default);
         #endregion
     }
 }

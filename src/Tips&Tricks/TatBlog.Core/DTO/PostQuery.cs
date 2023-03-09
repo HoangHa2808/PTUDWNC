@@ -22,11 +22,14 @@ namespace TatBlog.Core.DTO
 
         public int PostedMonth { get; set; }
 
+        public int PostedDay { get; set; }
+
         public int TagId { get; set; }
 
         public string TagSlug { get; set; }
 
         public bool PublishedOnly { get; set; }
         public string Keyword { get; set; }
+        public string PostSlug { get; set; }
     }
 }

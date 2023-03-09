@@ -13,11 +13,11 @@ public class Archives : ViewComponent
         _blogRepository = blogRepository;
     }
 
-    // Hiển thị danh sách 12 tháng gần nhất và số lượng
+    //Hiển thị danh sách 12 tháng gần nhất và số lượng
     // bài viết trong mỗi tháng dưới dạng các liên kết
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var archives = await _blogRepository.();
+        var archives = await _blogRepository.CountPostsMonthAsync(12);
         return View(archives);
     }
 }

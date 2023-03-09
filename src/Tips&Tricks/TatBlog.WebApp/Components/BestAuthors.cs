@@ -13,10 +13,10 @@ public class BestAuthors : ViewComponent
         _blogRepository = blogRepository;
     }
 
-    // Hiển thị TOP 4 tác giả có nhiều bài viết nhất
+    //Hiển thị TOP 4 tác giả có nhiều bài viết nhất
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var bestAuthors = await _blogRepository.();
+        var bestAuthors = await _blogRepository.ListAuthorAsync(4);
         return View(bestAuthors);
     }
 }

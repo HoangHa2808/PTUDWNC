@@ -3,10 +3,10 @@
 @foreach (var item in Model)
 {
     <a asp-controller="Blog"
-    asp-action="Tag"
-    asp-route-slug="@item.UrlSlug"
-    title="Tag: @item.Name"
-    class="btn btn-sm btn-outline-secondary">
-    @item.Name
+        asp-action="Tag"
+        asp-route-slug="@item.UrlSlug"
+        title="Tag: @item.Name"
+        class="btn btn-sm btn-outline-secondary">
+        @item.Name
 </a>
 }

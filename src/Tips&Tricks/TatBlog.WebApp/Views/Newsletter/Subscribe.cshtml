@@ -1,0 +1,22 @@
+﻿@model string
+
+@{
+    ViewData["PageTitle"] = "Đăng ký nhận thông báo";
+}
+
+<div class="mx-auto mt-5 p-5 rounded shadow" style="max-width: 576px">
+    <h5 class="text-uppercase">Đăng ký nhận thông báo mới</h5>
+    <p>Nhận thông báo về tin tức, bài viết mới qua email.</p>
+   
+    <form method="post">
+        <div class="d-flex">
+            <input type="email" name="email" class="flex-fill px-2 rounded border border-1 border secondary" 
+            placeholder="Email của bạn" required>
+            <button type="submit" class="btn btn-primary ms-3 px-4 py-2">Đăng ký</button>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model))
+        {
+            <div class="mt-3 text-danger">@Model</div>
+        }
+    </form>
+</div>

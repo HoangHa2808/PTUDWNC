@@ -290,7 +290,18 @@ public class BlogRepository : IBlogRepository
         int n,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await _context.Set<Post>()
+            .GroupBy(x => new { x.PostedDate.Year, x.PostedDate.Month })
+            .Select(g => new PostItem()
+            {
+                Year = g.Key.Year,
+                Month = g.Key.Month,
+                PostCount = g.Count(x => x.Published)
+            })
+            .OrderByDescending(x => x.Year)
+            .ThenByDescending(x => x.Month)
+            .ToListAsync(cancellationToken);
+
     }
 
     // 1.l: Tìm một bài viết theo mã số
@@ -424,16 +435,23 @@ public class BlogRepository : IBlogRepository
 
     // 1.s: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
     // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
-    public async Task<IPagedList<Post>> GetPagedPostQueryAsync(
-            PostQuery pq,
-            IPagingParams pagingParams,
-            CancellationToken cancellationToken = default)
+    public async Task<IPagedList<Post>> GetPagedPostsAsync(
+        PostQuery pq, IPagingParams pagingParams, 
+        CancellationToken cancellationToken = default)
     {
-        return await _context.Set<Post>()
+        return await FilterPost(pq)
+                .ToPagedListAsync(pagingParams, cancellationToken);
+    }
+
+    public IQueryable<Post> FilterPost(PostQuery pq)
+    {
+        var query = _context.Set<Post>()
             .Include(c => c.Category)
             .Include(t => t.Tags)
-            .Include(a => a.Author)
+            .Include(a => a.Author);
+        return query
             .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.AuthorSlug), p => p.UrlSlug == pq.AuthorSlug)
             .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
             .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
             .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
@@ -441,8 +459,44 @@ public class BlogRepository : IBlogRepository
             .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
             .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
             .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
-            .ToPagedListAsync(pagingParams, cancellationToken);
+            .WhereIf(pq.PublishedOnly, p => p.Published == pq.PublishedOnly)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.PostSlug), p => p.UrlSlug == pq.PostSlug);
+
     }
+
+    public async Task<IPagedList<Post>> GetPagedPostAsync(
+            PostQuery pq,
+            int pageNumber = 1,
+            int pageSize = 10,
+            CancellationToken cancellationToken = default)
+    {
+        return await FilterPost(pq)
+            .ToPagedListAsync(
+                pageNumber, pageSize,
+                nameof(Post.PostedDate), "DESC",
+                cancellationToken);
+    }
+
+    //public  Task<IPagedList<Post>> GetPagedPostQueryAsync(
+    //        PostQuery pq,
+    //        IPagingParams pagingParams,
+    //        CancellationToken cancellationToken = default)
+    //{ 
+    //    var query = _context.Set<Post>()
+    //        .Include(c => c.Category)
+    //        .Include(t => t.Tags)
+    //        .Include(a => a.Author);
+    //    return query
+    //        .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
+    //        .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
+    //        .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
+    //        .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
+    //        .WhereIf(pq.PostedYear > 0, p => p.PostedDate.Year == pq.PostedYear)
+    //        .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
+    //        .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
+    //        .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
+    //        .ToPagedListAsync(pagingParams, cancellationToken);
+    //}
 
     //public async Task<IPagedList<Post>> GetPagedPostsAsync(
     //        PostQuery pq,
@@ -457,27 +511,27 @@ public class BlogRepository : IBlogRepository
     //            cancellationToken);
     //}
 
-    public async Task<IPagedList<Post>> GetPagedPostQueryAsync(
-            PostQuery pq,
-            int pageNumber,
-            int pageSize,
-            CancellationToken cancellationToken = default)
-    {
-        return await _context.Set<Post>()
-            .Include(c => c.Category)
-            .Include(t => t.Tags)
-            .Include(a => a.Author)
-            .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
-            .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
-            .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
-            .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
-            .WhereIf(pq.PostedYear > 0, p => p.PostedDate.Year == pq.PostedYear)
-            .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
-            .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
-            .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
-            .WhereIf(pq.PublishedOnly, p => p.Published == true)
-            .ToPagedListAsync(pageNumber, pageSize,"Id","DESC",cancellationToken);
-    }
+    //public async Task<IPagedList<Post>> GetPagedPostQueryAsync(
+    //        PostQuery pq,
+    //        int pageNumber,
+    //        int pageSize,
+    //        CancellationToken cancellationToken = default)
+    //{
+    //    return await _context.Set<Post>()
+    //        .Include(c => c.Category)
+    //        .Include(t => t.Tags)
+    //        .Include(a => a.Author)
+    //        .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
+    //        .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
+    //        .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
+    //        .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
+    //        .WhereIf(pq.PostedYear > 0, p => p.PostedDate.Year == pq.PostedYear)
+    //        .WhereIf(pq.PostedMonth > 0, p => p.PostedDate.Month == pq.PostedMonth)
+    //        .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
+    //        .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
+    //        .WhereIf(pq.PublishedOnly, p => p.Published == true)
+    //        .ToPagedListAsync(pageNumber, pageSize,"Id","DESC",cancellationToken);
+    //}
    
     // 1.t: Tương tự câu trên nhưng yêu cầu trả về kiểu IPagedList<T>. Trong đó T
     // là kiểu dữ liệu của đối tượng mới được tạo từ đối tượng Post.Hàm này có
@@ -493,6 +547,78 @@ public class BlogRepository : IBlogRepository
     #endregion
 
     #region Phần C.2
+    //Câu 2. B : Tìm một tác giả theo mã số
+    public async Task<Author> GetAuthorByIdAsync(int Id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Author>()
+            .Where(t => t.Id == Id)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 
+    //Câu 2. C : Tìm một tác giả theo tên định danh (slug)
+    public async Task<Author> GetAuthorByUrlSlugAsync(string Slug, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Author>()
+            .Where(t => t.UrlSlug == Slug)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
+    //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
+    public async Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(IPagingParams pagingParams, CancellationToken cancellationToken = default)
+    {
+        var authorQuery = _context.Set<Author>()
+            .Select(x => new AuthorItem()
+            {
+                Id = x.Id,
+                FullName = x.FullName,
+                UrlSlug = x.UrlSlug,
+                ImageUrl = x.ImageUrl,
+                JoinedDate = x.JoinedDate,
+                Email = x.Email,
+                Notes = x.Notes
+            });
+        return await authorQuery
+            .ToPagedListAsync(pagingParams, cancellationToken);
+    }
+
+    //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả
+    public async Task AddAuthorAsync(Author author, CancellationToken cancellationToken = default)
+    {
+        if (IsPostSlugExistedAsync(author.Id, author.UrlSlug).Result)
+            Console.WriteLine("Error: Exsited Slug");
+        else
+
+                if (author.Id > 0) // true: update || false: add
+        {
+            await _context.Set<Author>()
+                  .Where(x => x.Id == author.Id)
+                  .ExecuteUpdateAsync(c => c
+                    .SetProperty(x => x.FullName, author.FullName)
+                    .SetProperty(x => x.UrlSlug, author.UrlSlug)
+                    .SetProperty(x => x.ImageUrl, author.ImageUrl)
+                    .SetProperty(x => x.JoinedDate, author.JoinedDate)
+                    .SetProperty(x => x.Email, author.Email)
+                    .SetProperty(x => x.Notes, author.Notes)
+                    .SetProperty(x => x.Posts, author.Posts),
+                     cancellationToken);
+        }
+        else
+        {
+            _context.Authors.AddRange(author);
+            _context.SaveChanges();
+        }
+    }
+
+    //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.
+    public async Task<IList<Author>> ListAuthorAsync(int N, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Author>()
+            .Include(x => x.Posts)
+            .Include(x => x.Id)
+            .OrderByDescending(p => p.FullName)
+            .Take(N)
+            .ToListAsync(cancellationToken);
+    }
     #endregion
 }
