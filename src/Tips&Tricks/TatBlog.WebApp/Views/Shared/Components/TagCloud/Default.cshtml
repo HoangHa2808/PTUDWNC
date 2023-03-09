@@ -10,11 +10,11 @@
         {
             <li class="list-group-item">
                 <a asp-controller="Blog"
-                   asp-action="Category"
-                   asp-route-slug="@item.UrlSlug"
+               asp-action="Tag"
+               asp-route-slug="@item.UrlSlug"
                    title="@item.Description">
                     @item.Name
-                    <span>(@item.PostCount)</span>
+                    @*<span>(@item.PostCount)</span>*@
                 </a>
             </li>
         }

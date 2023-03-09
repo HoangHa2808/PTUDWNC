@@ -15,28 +15,28 @@
             </div>
             <div class="col-md-8">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <a href="https://localhost:7248/blog/post/2023/2/1/blog-post-title">
-                        @Model.Title
-                        </a>
-                    </h5>
+                    <a asp-controller="Blog" asp-action="Post" asp-route-slug="@Model.UrlSlug>
+                        <h5 class="card-title">
+                            @Model.Title
+                        </h5>
+                    </a>
                     <p class="card-text">
                         <small class="text-muted">
                             Tác giả:
                         </small>
-                        <span class="text-primary">
-                            <a href="https://localhost:7248/blog/author/kathy-smith">
-                            @Model.Author.FullName
-                            </a>
-                        </span>
+                        <a asp-controller="Blog" asp-action="Author" asp-route-slug="@Model.Author.UrlSlug>
+                            <span class="text-primary">
+                                @Model.Author.FullName
+                            </span>
+                        </a>
                         <small class="text-muted">
                             Chủ đề:
                         </small>
-                        <span class="text-primary">
-                            <a href=" https://localhost:7248/blog/category/domain-driven-design">
-                            @Model.Category.Name
-                            </a>
-                        </span>
+                        <a asp-controller="Blog" asp-action="Category" asp-route-slug="@Model.Category.UrlSlug>
+                            <span class="text-primary">
+                                @Model.Category.Name
+                            </span>
+                        </a>
                     </p>
                     <p class="card-text">
                         @Html.Raw(Model.ShortDescription)
