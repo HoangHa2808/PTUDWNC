@@ -15,13 +15,14 @@ public class BlogDbContext : DbContext
     public DbSet<Category> Categories { get; set; }
     public DbSet<Post> Posts { get; set; }
     public DbSet<Tag> Tags { get; set; }
+    public DbSet<Subscriber> Subscribers { get; set; }
 
-    //	protected override void OnConfiguring(
-    //		DbContextOptionsBuilder optionsBuilder)
-    //	{
-    //		optionsBuilder.UseSqlServer(@"Server=localhost;Database=TatBlog;
-    //Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
-    //	}
+    protected override void OnConfiguring(
+        DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer(@"Server=localhost;Database=TatBlog;
+    Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
+    }
 
     public BlogDbContext(DbContextOptions<BlogDbContext> options)
         : base(options)

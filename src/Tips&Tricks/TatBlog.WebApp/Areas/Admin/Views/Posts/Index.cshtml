@@ -1,0 +1,62 @@
+﻿@model TatBlog.WebApp.Areas.Admin.Models.PostFilterModel
+@{
+    ViewData["PageTitle"] = "Danh sách bài viết";
+    var postsList = ViewBag.PostsList as IPagedList<Post>;
+}
+
+<h1>
+    Danh sách bài viết
+</h1>
+
+<!-- Hiển thị Form để tìm bài viết -->
+<partial name="_PostFilterPane" model="Model"/>
+
+@if (postsList !=null && postsList.Count > 0)
+{
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Tiêu đề</th>
+                <th>Tác giả</th>
+                <th>Chủ đề</th>
+                <th>Xuất bản</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var post in postsList)
+            {
+                <tr>
+                    <td>
+                        <a asp-area="Admin"
+                        asp-controller="Posts"
+                        asp-action="Edit"
+                        asp-route-id="@post.Id"
+                        class="text-bold">
+                        @post.Title
+                        </a>
+
+                        <p class="text-bold">
+                            @post.ShortDescription
+                        </p>
+                    </td>
+                    <td>
+                        @post.Author.FullName
+                    </td>
+                    <td>
+                        @post.Category.Name
+                    </td>
+                    <td>
+                        @(post.Published ? "Có" : "Không")
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1 class="text-danger">
+        Không tìm thấy bài viết nào
+    </h1>
+}

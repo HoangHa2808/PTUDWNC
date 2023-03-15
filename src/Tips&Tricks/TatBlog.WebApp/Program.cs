@@ -2,9 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using TatBlog.Data.Contexts;
 using TatBlog.Data.Seeders;
 using TatBlog.Services.Blogs;
+using TatBlog.Services.Authors;
+using TatBlog.WebApp.Extensions;
+using TatBlog.WebApp.Mapsters;
+using TatBlog.WebApp.Validations;
 
 namespace TatBlog.WinApp
 {
@@ -23,7 +28,14 @@ namespace TatBlog.WinApp
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
                 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+                builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
                 builder.Services.AddScoped<IDataSeeder, DataSeeder>();
+
+                builder.ConfigureMvc()
+                       .ConfigureNLog()
+                       .ConfigureServices()
+                       .ConfigureMapster()
+                       .ConfigureFluentValidation();
             }
 
             var app = builder.Build();
@@ -71,6 +83,11 @@ namespace TatBlog.WinApp
                    name: "posts-by-post",
                    pattern: "blog/post/{year:int}/{month:int}/{day:int}/{slug}",
                    defaults: new { controller = "Blog", action = "Post" });
+
+                app.MapControllerRoute(
+                name: "admin-area",
+                pattern: "admin/{controller=Dashboard}/{action=Index}/{id?}",
+                defaults: new { area = "Admin" });
 
                 app.MapControllerRoute(
                     name: "default",
