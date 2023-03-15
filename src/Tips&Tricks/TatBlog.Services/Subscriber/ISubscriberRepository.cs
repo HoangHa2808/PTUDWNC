@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TatBlog.Core.Contracts;
 using TatBlog.Core.Entities;
 
-namespace TatBlog.Services.Blogs
+namespace TatBlog.Services.Subscriber
 {
     public interface ISubscriberRepository
     {

@@ -12,8 +12,12 @@
                 <a asp-controller="Blog"
                    asp-action="Post"
                    asp-route-slug="@item.UrlSlug"
+               asp-route-year="@item.PostedDate.Year"
+               asp-route-month="@item.PostedDate.Month"
+               asp-route-day="@item.PostedDate.Day"
                    title="@item.Description">
                     @item.Title
+                    
                     @*<span>(@item.PostCount)</span>*@
                 </a>
             </li>

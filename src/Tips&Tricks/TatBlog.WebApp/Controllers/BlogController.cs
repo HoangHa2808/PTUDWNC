@@ -180,10 +180,9 @@ namespace TatBlog.WebApp.Controllers
 
 
         #region Hiển thị thông tin liên hệ, bản đồ và form để gửi ý kiến
-        public async Task<IActionResult> Contact()
-        {
-            return View();
-        }
+        public IActionResult Contact()
+        => View();
+        
         #endregion
 
 

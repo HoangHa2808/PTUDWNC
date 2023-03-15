@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TatBlog.Data.Contexts;
 
-namespace TatBlog.Services.Blogs
+namespace TatBlog.Services.Subscriber
 {
     public class SubscriberRepository : ISubscriberRepository
     {

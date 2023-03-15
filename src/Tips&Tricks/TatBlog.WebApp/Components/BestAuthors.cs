@@ -1,22 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using TatBlog.Services.Blogs;
+using TatBlog.Services.Authors;
 
 namespace TatBlog.WebApp.Components;
 
 public class BestAuthors : ViewComponent
 {
-    private readonly IBlogRepository _blogRepository;
+    private readonly IAuthorRepository _authorRepository;
 
-    public BestAuthors(IBlogRepository blogRepository)
+    public BestAuthors(IAuthorRepository authorRepository)
     {
-        _blogRepository = blogRepository;
+        _authorRepository = authorRepository;
     }
 
     //Hiển thị TOP 4 tác giả có nhiều bài viết nhất
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var bestAuthors = await _blogRepository.ListAuthorAsync(4);
+        var bestAuthors = await _authorRepository.ListAuthorAsync(4);
         return View(bestAuthors);
     }
 }

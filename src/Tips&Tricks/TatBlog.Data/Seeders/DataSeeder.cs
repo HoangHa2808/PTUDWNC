@@ -87,9 +87,9 @@ public class DataSeeder : IDataSeeder
                 new() {Name = "Messaging", Description = "Messaging", UrlSlug = "messaging"},
                 new() {Name = "OOP", Description = "Object-Oriented Programming", UrlSlug = "oop"},
                 new() {Name = "Design Patterns", Description = "Design Patterns", UrlSlug = "design-patterns"},
-                new() {Name = "Category 1", Description = "Category 1", UrlSlug = "category-1"},
+                new() {Name = ".NET Core", Description = "Category 1", UrlSlug = "category-1"},
                 new() {Name = "Category 2", Description = "Category 2", UrlSlug = "category-2"},
-                new() {Name = "Category 3", Description = "Category 3", UrlSlug = "category-3"},
+                new() {Name = "OOP", Description = "Category 3", UrlSlug = "category-3"},
                 new() {Name = "Category 4", Description = "Category 4", UrlSlug = "category-4"},
                 new() {Name = "Category 5", Description = "Category 5", UrlSlug = "category-5"},
         };
