@@ -66,7 +66,7 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(int id = 0)
         {
             var post = id > 0
-                ? await _blogRepository.FindPostByIDAsync(id)
+                ? await _blogRepository.GetPostByIdAsync(id, true)
                 : null;
 
             var model = post == null
@@ -77,9 +77,22 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             return View(model);
         }
 
-        private Task PopulatePostEditModelAsync(PostEditModel model)
+        private async Task PopulatePostEditModelAsync(PostEditModel model)
         {
-            throw new NotImplementedException();
+            var authors = await _authorRepository.GetAuthorsAsync();
+            var categories = await _blogRepository.GetCategoriesAsync();
+
+            model.AuthorList = authors.Select(a => new SelectListItem()
+            {
+                Text = a.FullName,
+                Value = a.Id.ToString()
+            });
+
+            model.CategoryList = categories.Select(c => new SelectListItem()
+            {
+                Text = c.Name,
+                Value = c.Id.ToString()
+            });
         }
 
 

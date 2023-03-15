@@ -360,11 +360,9 @@ public class BlogRepository : IBlogRepository
     //    }
     //}
 
-    
-
     public async Task<Post> CreateOrUpdatePostAsync(
-        Post post, IEnumerable<string> tags,
-        CancellationToken cancellationToken = default)
+            Post post, IEnumerable<string> tags,
+            CancellationToken cancellationToken = default)
     {
         if (post.Id > 0)
         {
@@ -379,7 +377,7 @@ public class BlogRepository : IBlogRepository
             .Select(x => new
             {
                 Name = x,
-                Slug = x.GenerateSlug()
+                Slug = GenerateSlug(x)
             })
             .GroupBy(x => x.Slug)
             .ToDictionary(g => g.Key, g => g.First().Name);
@@ -389,7 +387,7 @@ public class BlogRepository : IBlogRepository
         {
             if (post.Tags.Any(x => string.Compare(x.UrlSlug, kv.Key, StringComparison.InvariantCultureIgnoreCase) == 0)) continue;
 
-            var tag = await GetTagAsync(kv.Key, cancellationToken) ?? new Tag()
+            var tag = await FindTagWithSlugAsync(kv.Key, cancellationToken) ?? new Tag()
             {
                 Name = kv.Value,
                 Description = kv.Value,
@@ -410,6 +408,12 @@ public class BlogRepository : IBlogRepository
 
         return post;
     }
+
+    private string GenerateSlug(string s)
+    {
+        return s.ToLower().Replace(".", "dot").Replace(" ", "-");
+    }
+
     public async Task<Tag> GetTagAsync(
         string slug, CancellationToken cancellationToken = default)
     {
