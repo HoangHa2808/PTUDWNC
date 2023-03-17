@@ -1,0 +1,52 @@
+﻿@*@model TatBlog.WebApp.Areas.Admin.Models.AuthorFilterModel
+
+<form asp-area="Admin"
+      asp-controller="Authors"
+      asp-action="Index"
+      method="get"
+      class="row gy-2 gx-3 align-items-center">
+    <div class="col-auto">
+        <label class="visually-hidden" asp-for="Keyword"></label>
+        <input type="text"
+               class="form-control"
+               asp-for="Keyword"
+               placeholder="Nhập từ khoá...">
+    </div>
+
+    <div class="col-auto">
+        <label class="visually-hidden" asp-for="CategoryId"></label>
+        <select class="form-select"
+                asp-for="CategoryId"
+                asp-items="Model.CategoryList">
+            <option value="" selected>—- Chọn chủ đề -—</option>
+        </select>
+    </div>
+
+    @*<div class="col-auto">
+        <label class="visually-hidden" asp-for="Year"></label>
+        <input type="text"
+               class="form-control"
+               asp-for="Year"
+               placeholder="Nhập năm...">
+    </div>
+
+    <div class="col-auto">
+        <label class="visually-hidden" asp-for="Month"></label>
+        <select class="form-select"
+                asp-for="Month"
+                asp-items="Model.MonthList">
+            <option value="" selected>—- Chọn tháng -—</option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Tìm/Lọc</button>
+        <a asp-area="Admin"
+           asp-controller="Authors"
+           asp-action="Edit"
+           class="btn btn-success">
+            Thêm mới
+        </a>
+    </div>
+
+</form>*@

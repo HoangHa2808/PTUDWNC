@@ -74,12 +74,18 @@ namespace TatBlog.Services.Blogs
 
 
         // 1.g: Thêm hoặc cập nhật một chuyên mục
-        Task AddOrUpdateCategoryAsync(Category categoriesName, CancellationToken cancellationToken = default);
+        Task<Category> CreateOrUpdateCategoryAsync(
+        Category category, CancellationToken cancellationToken = default);
 
 
         // 1.h: Xóa một chuyên mục theo mã số
-        Task DeleteCategoryByIdAsync(int CategoryId, CancellationToken cancellationToken = default);
+        Task<bool> DeleteCategoryByIdAsync(int categoryId,CancellationToken cancellationToken = default);
 
+        Task<bool> ToggleShowOnMenuFlagAsync(int categoryId,CancellationToken cancellationToken = default);
+
+        Task<bool> DeletePostsByIdAsync(int postId,CancellationToken cancellationToken = default);
+
+        Task<bool> TogglePuslishedFlagAsync(int postId,CancellationToken cancellationToken = default);
 
         // 1.i: Kiểm tra tên định danh (slug) của
         // một chuyên mục đã tồn tại hay chưa.
@@ -87,7 +93,10 @@ namespace TatBlog.Services.Blogs
 
 
         // 1.j: Lấy và phân trang danh sách chuyên mục
-        Task<IPagedList<CategoryItem>> GetPagedCategoryAsync(IPagingParams pagingParams, CancellationToken cancellationToken = default);
+        Task<IPagedList<CategoryItem>> GetPagedCategoryAsync(
+         int pageNumber = 1,
+         int pageSize = 10,
+         CancellationToken cancellationToken = default);
 
 
         // 1.k: Đếm số lượng bài viết trong N tháng gần nhất. N là tham số đầu vào.

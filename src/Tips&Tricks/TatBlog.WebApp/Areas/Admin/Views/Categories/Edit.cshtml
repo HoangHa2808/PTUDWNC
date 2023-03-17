@@ -1,0 +1,133 @@
+﻿@model TatBlog.WebApp.Areas.Admin.Models.CategoryEditModel
+
+@{
+    ViewData["PageTitle"] = "Thêm/Cập nhật chủ đề";
+}
+
+<h1>Thêm/Cập nhật chủ đề</h1>
+
+<form asp-area="Admin"
+      asp-controller="Categories"
+      asp-action="Edit"
+      enctype="multipart/form-data"
+      method="category">
+    <div asp-validation-summary="ModelOnly"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="row mb-3">
+        <label asp-for="Name"
+               class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input type="text"
+                   class="form-control"
+                   asp-for="Name">
+            <span asp-validation-for="Name"
+                  class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label asp-for="Description"
+               class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input type="text"
+                   class="form-control"
+                   asp-for="Description">
+            <span asp-validation-for="Description"
+                  class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label asp-for="UrlSlug"
+               class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input type="text"
+                   class="form-control"
+                   asp-for="UrlSlug">
+            <span asp-validation-for="UrlSlug"
+                  class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label asp-for="AuthorId"
+               class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select class="form-control"
+                    asp-for="AuthorId" asp-items="Model.AuthorList">
+                <option value="">-- Chọn tác giả --</option>
+            </select>
+            <span asp-validation-for="AuthorId"
+                  class="text-danger"></span>
+        </div>
+    </div>
+
+  @*  <div class="row mb-3">
+        <label asp-for="CategoryId"
+               class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select class="form-control"
+                    asp-for="CategoryId" asp-items="Model.CategoryList">
+                <option value="">-- Chọn tác giả --</option>
+            </select>
+            <span asp-validation-for="CategoryId"
+                  class="text-danger"></span>
+        </div>
+    </div>*@
+
+    <div class="row mb-3">
+        <label asp-for="SelectedTags"
+               class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input type="text"
+                   class="form-control"
+                   asp-for="SelectedTags">
+            <span asp-validation-for="SelectedTags"
+                  class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-sm-10 offset-sm-2">
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       asp-for="ShowOnMenu">
+                <label class="form-check-label"
+                       asp-for="ShowOnMenu"></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary">
+            Lưu Các Thay Đổi
+        </button>
+
+        <a asp-area="Admin"
+           asp-controller="Categories"
+           asp-action="Index"
+           class="btn btn-danger">
+            Huỷ & Quay lại
+        </a>
+    </div>
+
+</form>
+
+@section scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="~/lib/speakingurl/speakingurl.min.js"></script>
+
+    <script>
+        $(function (){
+            $('#Title').change(function(){
+                var slug = getSlug(this.value);
+                $('#UrlSlug').val(slug).trigger('blur');
+            });
+        });
+    </script>
+}
+

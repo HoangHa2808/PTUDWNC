@@ -1,0 +1,75 @@
+﻿@*@model IPagedList<Category>
+
+@{
+    var postQuery = (ViewBag.PostQuery as PostQuery) ?? new PostQuery();
+    var actionName = "Index";
+    var slug = "";
+
+    if (!string.IsNullOrWhiteSpace(postQuery.AuthorSlug))
+    {
+        actionName = "Author";
+    }
+
+    else if (!string.IsNullOrWhiteSpace(postQuery.CategorySlug))
+    {
+        actionName = "Category";
+    }
+    else if (!string.IsNullOrWhiteSpace(postQuery.TagSlug))
+    {
+        actionName = "Tag";
+    }
+}
+
+@if (Model.PageCount > 1)
+{
+    <div class="text-center my-4">
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-area="Admin"
+                asp-controller="Categories"
+               asp-action="@actionName"
+               asp-route-slug="@slug"
+               asp-route-k="@postQuery.Keyword"
+               asp-route-p="@(Model.PageNumber - 1)"
+               asp-route-ps="@Model.PageSize"
+               class="btn btn-info">
+                <i class="fa fa-arrow-left"></i>
+                Trang trước
+            </a>
+        }
+        else
+        {
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    disabled>
+                <i class="fa fa-arrow-left"></i>
+                Trang trước
+            </button>
+        }
+
+        @if (Model.HasNextPage)
+        {
+                <a asp-area="Admin"
+           asp-controller="Categories"
+               asp-action="@actionName"
+               asp-route-slug="@slug"
+               asp-route-k="@postQuery.Keyword"
+               asp-route-p="@(Model.PageNumber + 1)"
+               asp-route-ps="@Model.PageSize"
+               class="btn btn-info">
+                Trang sau
+                <i class="fa fa-arrow-right"></i>
+            </a>
+        }
+        else
+        {
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    disabled>
+                Trang sau
+                <i class="fa fa-arrow-right"></i>
+            </button>
+        }
+    </div>
+}
+*@

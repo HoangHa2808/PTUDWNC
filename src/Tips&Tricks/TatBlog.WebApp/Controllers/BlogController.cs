@@ -17,7 +17,7 @@ namespace TatBlog.WebApp.Controllers
         public async Task<IActionResult> Index(
             [FromQuery(Name = "k")] string keyword = null,
             [FromQuery(Name = "p")] int pageNumber = 1,
-            [FromQuery(Name = "ps")] int pageSize = 3)
+            [FromQuery(Name = "ps")] int pageSize = 5)
         {
 
             var postQuery = new PostQuery()
@@ -126,21 +126,19 @@ namespace TatBlog.WebApp.Controllers
             #region Hiển thị chi tiết 1 bài viết khi người dùng nhấn vào
             // nút Xem chi tiết hoặc tiêu đề bài viết ở trang chủ
             public async Task<IActionResult> Post(
-                string slugPost = null,
-            string keyword = null,
-             int pageNumber = 1,
-             int pageSize = 3)
+                string slugPost,
+                int year, 
+                int month)
         {
 
             var postQuery = new PostQuery()
             {
 
                 PublishedOnly = true,
-                Keyword = keyword
             };
 
             var postsList = await _blogRepository
-                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
+                .GetPostAsync(year, month, slugPost);
 
             ViewBag.PostQuery = postQuery;
             //ViewBag.

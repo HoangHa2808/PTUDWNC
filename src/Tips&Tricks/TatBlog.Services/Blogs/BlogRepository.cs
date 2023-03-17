@@ -24,7 +24,8 @@ public class BlogRepository : IBlogRepository
     {
         IQueryable<Post> postsQuery = _context.Set<Post>()
             .Include(x => x.Category)
-            .Include(x => x.Author);
+            .Include(x => x.Author)
+            .Include(x => x.Tags);
 
         if (year > 0)
         {
@@ -199,6 +200,11 @@ public class BlogRepository : IBlogRepository
         return await categoriesQuery.FirstOrDefaultAsync(cancellationToken);
     }
 
+
+    //public async Task<Category> GetCategoryByIdAsync(int categoryId)
+    //{
+    //    return await _context.Set<Category>().FindAsync(categoryId);
+    //}
     // 1.f: Tìm 1 chuyên mục theo mã số
     public async Task<Category> FindCategoryByIDAsync(
         int id,
@@ -210,51 +216,110 @@ public class BlogRepository : IBlogRepository
     }
 
     // 1.g: Thêm hoặc cập nhật một chuyên mục
-    public async Task AddOrUpdateCategoryAsync(
-         Category category,
-            CancellationToken cancellationToken = default)
+    public async Task<Category> CreateOrUpdateCategoryAsync(
+        Category category, CancellationToken cancellationToken = default)
     {
-        if (IsCategorySlugExistedAsync(category.Id, category.UrlSlug).Result)
-            Console.WriteLine("Error: Exsited Slug");
-        else
-
-            if (category.Id > 0) // true: update || false: add
-            await _context.Set<Category>()
-            .Where(c => c.Id == category.Id)
-            .ExecuteUpdateAsync(c => c
-                .SetProperty(x => x.Name, x => category.Name)
-                .SetProperty(x => x.UrlSlug, x => category.UrlSlug)
-                .SetProperty(x => x.Description, x => category.Description)
-                .SetProperty(x => x.ShowOnMenu, category.ShowOnMenu)
-                .SetProperty(x => x.Posts, category.Posts),
-                cancellationToken);
+        if (category.Id > 0)
+        {
+            _context.Set<Category>().Update(category);
+        }
         else
         {
-            _context.Categories.Add(category);
-            _context.SaveChanges();
+            _context.Set<Category>().Add(category);
         }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return category;
     }
+    //public async Task AddOrUpdateCategoryAsync(
+    //     Category category,
+    //        CancellationToken cancellationToken = default)
+    //{
+    //    if (IsCategorySlugExistedAsync(category.Id, category.UrlSlug).Result)
+    //        Console.WriteLine("Error: Exsited Slug");
+    //    else
+
+    //        if (category.Id > 0) // true: update || false: add
+    //        await _context.Set<Category>()
+    //        .Where(c => c.Id == category.Id)
+    //        .ExecuteUpdateAsync(c => c
+    //            .SetProperty(x => x.Name, x => category.Name)
+    //            .SetProperty(x => x.UrlSlug, x => category.UrlSlug)
+    //            .SetProperty(x => x.Description, x => category.Description)
+    //            .SetProperty(x => x.ShowOnMenu, category.ShowOnMenu)
+    //            .SetProperty(x => x.Posts, category.Posts),
+    //            cancellationToken);
+    //    else
+    //    {
+    //        _context.Categories.Add(category);
+    //        _context.SaveChanges();
+    //    }
+    //}
 
     // 1.h: Xóa một chuyên mục theo mã số cho trước
-    public async Task DeleteCategoryByIdAsync(
-        int CategoryId,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteCategoryByIdAsync(
+     int categoryId,
+     CancellationToken cancellationToken = default)
     {
-        await _context.Database
-                .ExecuteSqlRawAsync("DELETE FROM Posts WHERE Id = " + CategoryId,
-                cancellationToken);
+        var category = await _context.Set<Category>().FindAsync(categoryId);
+        if (category is null) return false;
+        _context.Set<Category>().Remove(category);
+        var rowsCount = await _context.SaveChangesAsync(cancellationToken);
+        return rowsCount > 0;
+    }
 
-        await _context.Set<Category>()
-            .Where(t => t.Id == CategoryId)
-            .ExecuteDeleteAsync(cancellationToken);
+    public async Task<bool> ToggleShowOnMenuFlagAsync(
+      int categoryId,
+      CancellationToken cancellationToken = default)
+    {
+        var category = await _context.Set<Category>().FindAsync(categoryId);
+        if (category is null) return false;
+        category.ShowOnMenu = !category.ShowOnMenu;
+        await _context.SaveChangesAsync(cancellationToken);
+        return category.ShowOnMenu;
+    }
+    //public async Task DeleteCategoryByIdAsync(
+    //    int CategoryId,
+    //    CancellationToken cancellationToken = default)
+    //{
+    //    await _context.Database
+    //            .ExecuteSqlRawAsync("DELETE FROM Posts WHERE Id = " + CategoryId,
+    //            cancellationToken);
+
+    //    await _context.Set<Category>()
+    //        .Where(t => t.Id == CategoryId)
+    //        .ExecuteDeleteAsync(cancellationToken);
+    //}
+
+    public async Task<bool> DeletePostsByIdAsync(
+      int postId,
+      CancellationToken cancellationToken = default)
+    {
+        var post = await _context.Set<Post>().FindAsync(postId);
+        if (post is null) return false;
+        _context.Set<Post>().Remove(post);
+        var rowsCount = await _context.SaveChangesAsync(cancellationToken);
+        return rowsCount > 0;
+    }
+
+    public async Task<bool> TogglePuslishedFlagAsync(
+      int postId,
+      CancellationToken cancellationToken = default)
+    {
+        var post = await _context.Set<Post>().FindAsync(postId);
+        if (post is null) return false;
+        post.Published = !post.Published;
+        await _context.SaveChangesAsync(cancellationToken);
+        return post.Published;
     }
 
     // 1.i: Kiểm tra tên định danh (slug)
     //của một chuyên mục đã tồn tài hay chưa
     public async Task<bool> IsCategorySlugExistedAsync(
-        int categoryId,
-        string slug,
-        CancellationToken cancellationToken = default)
+    int categoryId,
+    string slug,
+    CancellationToken cancellationToken = default)
     {
         return await _context.Set<Category>()
             .AnyAsync(x => x.Id != categoryId && x.UrlSlug == slug, cancellationToken);
@@ -263,7 +328,8 @@ public class BlogRepository : IBlogRepository
     // 1.j: Lấy và phân trang danh sách chuyên mục
     //kết quả trả về kiểu IPagedList<CategoryItem>
     public async Task<IPagedList<CategoryItem>> GetPagedCategoryAsync(
-        IPagingParams pagingParams,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         var categoriesQuery = _context.Set<Category>()
@@ -273,17 +339,20 @@ public class BlogRepository : IBlogRepository
                 Name = x.Name,
                 UrlSlug = x.UrlSlug,
                 Description = x.Description,
+                ShowOnMenu = x.ShowOnMenu,
                 PostCount = x.Posts.Count(p => p.Published)
             });
-        return await categoriesQuery.ToPagedListAsync(pagingParams, cancellationToken);
+        return await categoriesQuery.ToPagedListAsync(
+            pageNumber, pageSize,
+            nameof(Category.Name), "DESC",
+            cancellationToken);
     }
-
 
     // 1.k: Đếm số lượng bài viết trong N tháng gần nhất. N là tham số đầu vào.
     // Kết quả là một danh sách các đối tượng chứa các thông tin sau: Năm, Tháng, Số bài viết
     public async Task<IList<PostItem>> CountPostsMonthAsync(
-        int n,
-        CancellationToken cancellationToken = default)
+    int n,
+    CancellationToken cancellationToken = default)
     {
         return await _context.Set<Post>()
             .GroupBy(x => new { x.PostedDate.Year, x.PostedDate.Month })
