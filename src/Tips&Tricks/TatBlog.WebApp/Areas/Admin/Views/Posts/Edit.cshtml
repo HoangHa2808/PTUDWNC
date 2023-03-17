@@ -79,7 +79,7 @@
                class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
             <select class="form-control"
-                    asp-for="AuthorId" asp-items="Model.CategoryList">
+                    asp-for="AuthorId" asp-items="Model.AuthorList">
                 <option value="">-- Chọn tác giả --</option>
             </select>
             <span asp-validation-for="AuthorId"
@@ -93,7 +93,7 @@
         <div class="col-sm-10">
             <select class="form-control"
                     asp-for="CategoryId" asp-items="Model.CategoryList">
-                <option value="">-- Chọn tác giả --</option>
+                <option value="">-- Chọn chủ đề --</option>
             </select>
             <span asp-validation-for="CategoryId"
                   class="text-danger"></span>
@@ -118,7 +118,8 @@
             <label asp-for="ImageUrl"
                    class="col-sm-2 col-form-label"></label>
             <div class="" col-sm-10>
-                <img src="/@Model.ImageUrl" />
+                <img src="/@Model.ImageUrl" 
+                style="max-width : 300px;"/>
             </div>
         </div>
     }
@@ -130,6 +131,8 @@
             <input type="file"
                    class="form-control"
                    asp-for="ImageFile">
+            <span asp-validation-for="ImageFile"
+                  class="text-danger"></span>
         </div>
     </div>
 
@@ -169,7 +172,7 @@
     <script>
         $(function (){
             $('#Title').change(function(){
-                vả slug = getSlug(this.value);
+                var slug = getSlug(this.value);
                 $('#UrlSlug').val(slug).trigger('blur');
             });
         });

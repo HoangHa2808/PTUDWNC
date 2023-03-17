@@ -27,6 +27,16 @@ namespace TatBlog.WebApp.Mapsters
                 .Ignore(dest => dest.AuthorList)
                 .Ignore(dest => dest.ImageFile);
 
+            config.NewConfig<CategoryEditModel, Category>()
+               .Ignore(dest => dest.Id)
+               .Ignore(dest => dest.ShowOnMenu);
+
+            config.NewConfig<Category, CategoryEditModel>()
+                .Map(dest => dest.SelectedTags,
+                src => string.Join("\r\n", src.Description.Select(x => x.ToString())))
+                .Ignore(dest => dest.CategoryList)
+                .Ignore(dest => dest.AuthorList);
+
         }
     }
 }
