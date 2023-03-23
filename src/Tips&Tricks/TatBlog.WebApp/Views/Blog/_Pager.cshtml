@@ -9,7 +9,6 @@
     {
         actionName = "Author";
     }
-
     else if (!string.IsNullOrWhiteSpace(postQuery.CategorySlug))
     {
         actionName = "Category";
@@ -25,7 +24,8 @@
     <div class="text-center my-4">
         @if (Model.HasPreviousPage)
         {
-            <a asp-controller="Blog"
+            <a asp-area=""
+                asp-controller="Blog"
                asp-action="@actionName"
                asp-route-slug="@slug"
                asp-route-k="@postQuery.Keyword"
@@ -48,7 +48,8 @@
 
         @if (Model.HasNextPage)
         {
-            <a asp-controller="Blog"
+            <a asp-area=""
+                asp-controller="Blog"
                asp-action="@actionName"
                asp-route-slug="@slug"
                asp-route-k="@postQuery.Keyword"

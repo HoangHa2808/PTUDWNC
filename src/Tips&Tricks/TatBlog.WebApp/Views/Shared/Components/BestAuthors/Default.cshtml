@@ -1,4 +1,4 @@
-﻿@model IList<Author>
+﻿@model IList<AuthorItem>
 
 <div class="mb-4">
     <h3 class="text-success mb-2">
@@ -12,8 +12,9 @@
                 <a asp-controller="Blog"
                    asp-action="Author"
                    asp-route-slug="@item.UrlSlug"
-                   title="">
+                   title="@item.FullName">
                     @item.FullName
+                    <span>(@item.PostCount)</span>
                 </a>
             </li>
         }

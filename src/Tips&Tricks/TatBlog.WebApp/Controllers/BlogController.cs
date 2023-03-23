@@ -17,7 +17,7 @@ namespace TatBlog.WebApp.Controllers
         public async Task<IActionResult> Index(
             [FromQuery(Name = "k")] string keyword = null,
             [FromQuery(Name = "p")] int pageNumber = 1,
-            [FromQuery(Name = "ps")] int pageSize = 3)
+            [FromQuery(Name = "ps")] int pageSize = 5)
         {
 
             var postQuery = new PostQuery()
@@ -48,7 +48,7 @@ namespace TatBlog.WebApp.Controllers
             string keyword = null,
              string slug = null,
              int pageNumber = 1,
-             int pageSize = 3)
+             int pageSize = 5)
         {
 
             var postQuery = new PostQuery()
@@ -71,18 +71,16 @@ namespace TatBlog.WebApp.Controllers
 
         #region Hiển thị danh sách bài viết theo tác giả
         public async Task<IActionResult> Author(
-            string slugPost = null,
+            string slug = null,
             string keyword = null,
              int pageNumber = 1,
-             int pageSize = 3)
+             int pageSize = 5)
         {
 
             var postQuery = new PostQuery()
             {
-                
                 PublishedOnly = true,
-                Keyword = keyword,
-                AuthorSlug = slugPost
+                AuthorSlug = slug
             };
 
             var postsList = await _blogRepository
@@ -98,18 +96,17 @@ namespace TatBlog.WebApp.Controllers
 
         #region Hiển thị danh sách bài viết chứa thẻ
         public async Task<IActionResult> Tag(
-            string slugPost = null,
+            string slug = null,
             string keyword = null,
              int pageNumber = 1,
-             int pageSize = 3)
+             int pageSize = 5)
         {
 
             var postQuery = new PostQuery()
             {
-
                 PublishedOnly = true,
                 Keyword = keyword,
-                TagSlug = slugPost
+                TagSlug = slug
             };
 
             var postsList = await _blogRepository
@@ -120,27 +117,24 @@ namespace TatBlog.WebApp.Controllers
 
             return View(postsList);
         }
-            #endregion
+        #endregion
 
 
-            #region Hiển thị chi tiết 1 bài viết khi người dùng nhấn vào
-            // nút Xem chi tiết hoặc tiêu đề bài viết ở trang chủ
-            public async Task<IActionResult> Post(
-                string slugPost = null,
-            string keyword = null,
-             int pageNumber = 1,
-             int pageSize = 3)
+        #region Hiển thị chi tiết 1 bài viết khi người dùng nhấn vào
+        // nút Xem chi tiết hoặc tiêu đề bài viết ở trang chủ
+        public async Task<IActionResult> Post(
+            string slug,
+            int year,
+            int month)
         {
 
             var postQuery = new PostQuery()
             {
-
                 PublishedOnly = true,
-                Keyword = keyword
             };
 
             var postsList = await _blogRepository
-                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
+                .GetPostAsync(year, month, slug);
 
             ViewBag.PostQuery = postQuery;
             //ViewBag.
@@ -152,24 +146,22 @@ namespace TatBlog.WebApp.Controllers
 
         #region Hiển thị danh sách bài viết được đăng trong tháng và năm đã chọn
         public async Task<IActionResult> Archives(
-            string slugPost,
-            int year, int month, int day,
+            int year, int month,
             string keyword = null,
              int pageNumber = 1,
-             int pageSize = 3)
+             int pageSize = 5)
         {
 
             var postQuery = new PostQuery()
             {
-
                 PublishedOnly = true,
                 Keyword = keyword,
-                PostSlug = slugPost,
-               
+                PostedYear = year,
+                PostedMonth = month
             };
 
             var postsList = await _blogRepository
-                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
+               .GetPagedPostAsync(postQuery, pageNumber, pageSize);
 
             ViewBag.PostQuery = postQuery;
             //ViewBag.
@@ -180,10 +172,9 @@ namespace TatBlog.WebApp.Controllers
 
 
         #region Hiển thị thông tin liên hệ, bản đồ và form để gửi ý kiến
-        public async Task<IActionResult> Contact()
-        {
-            return View();
-        }
+        public IActionResult Contact()
+        => View();
+
         #endregion
 
 

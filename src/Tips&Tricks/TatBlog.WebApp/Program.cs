@@ -2,9 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using TatBlog.Data.Contexts;
 using TatBlog.Data.Seeders;
 using TatBlog.Services.Blogs;
+using TatBlog.Services.Authors;
+using TatBlog.WebApp.Extensions;
+using TatBlog.WebApp.Mapsters;
+using TatBlog.WebApp.Validations;
 
 namespace TatBlog.WinApp
 {
@@ -23,7 +28,14 @@ namespace TatBlog.WinApp
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
                 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+                builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
                 builder.Services.AddScoped<IDataSeeder, DataSeeder>();
+
+                builder.ConfigureMvc()
+                       .ConfigureNLog()
+                       .ConfigureServices()
+                       .ConfigureMapster()
+                       .ConfigureFluentValidation();
             }
 
             var app = builder.Build();
@@ -58,6 +70,11 @@ namespace TatBlog.WinApp
                 //Định nghĩa route template, route cóntraint cho các endpoints
                 //kết hợp với các action trong các controller
                 app.MapControllerRoute(
+              name: "posts-by-authors",
+              pattern: "blog/author/{slug}",
+              defaults: new { controller = "Blog", action = "Author" });
+
+                app.MapControllerRoute(
                     name: "posts-by-category",
                     pattern: "blog/category/{slug}",
                     defaults: new { controller = "Blog", action = "Category" });
@@ -68,9 +85,19 @@ namespace TatBlog.WinApp
                     defaults: new { controller = "Blog", action = "Tag" });
 
                 app.MapControllerRoute(
-                   name: "posts-by-post",
+                   name: "single-post",
                    pattern: "blog/post/{year:int}/{month:int}/{day:int}/{slug}",
                    defaults: new { controller = "Blog", action = "Post" });
+
+                app.MapControllerRoute(
+                  name: "posts-by-archives",
+                  pattern: "blog/archives/{year:int}/{month:int}",
+                  defaults: new { controller = "Blog", action = "Archives" });
+
+                app.MapControllerRoute(
+                name: "admin-area",
+                pattern: "admin/{controller=Dashboard}/{action=Index}/{id?}",
+                defaults: new { area = "Admin" });
 
                 app.MapControllerRoute(
                     name: "default",

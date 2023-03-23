@@ -15,6 +15,7 @@ public class CategoriesWidget : ViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
+        // Lấy danh sách chủ đề
         var categories = await _blogRepository.GetCategoriesAsync();
         return View(categories);
     }

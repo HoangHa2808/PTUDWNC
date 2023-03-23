@@ -18,6 +18,7 @@ public class Post : IEntity
 	public string ImageUrl { get; set; }
 	public int ViewCount { get; set; }
 	public bool Published { get; set; }
+	//public bool UnPublished { get; set; }
 	public DateTime PostedDate { get; set; }
 	public DateTime? ModifiedDate { get; set; }
 	public int CategoryId { get; set; }

@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TatBlog.Core.Entities;
 using TatBlog.Core.DTO;
 using TatBlog.Core.Contracts;
@@ -29,7 +24,8 @@ public class BlogRepository : IBlogRepository
     {
         IQueryable<Post> postsQuery = _context.Set<Post>()
             .Include(x => x.Category)
-            .Include(x => x.Author);
+            .Include(x => x.Author)
+            .Include(x => x.Tags);
 
         if (year > 0)
         {
@@ -204,6 +200,11 @@ public class BlogRepository : IBlogRepository
         return await categoriesQuery.FirstOrDefaultAsync(cancellationToken);
     }
 
+
+    //public async Task<Category> GetCategoryByIdAsync(int categoryId)
+    //{
+    //    return await _context.Set<Category>().FindAsync(categoryId);
+    //}
     // 1.f: Tìm 1 chuyên mục theo mã số
     public async Task<Category> FindCategoryByIDAsync(
         int id,
@@ -215,51 +216,110 @@ public class BlogRepository : IBlogRepository
     }
 
     // 1.g: Thêm hoặc cập nhật một chuyên mục
-    public async Task AddOrUpdateCategoryAsync(
-         Category category,
-            CancellationToken cancellationToken = default)
+    public async Task<Category> CreateOrUpdateCategoryAsync(
+        Category category, CancellationToken cancellationToken = default)
     {
-        if (IsCategorySlugExistedAsync(category.Id, category.UrlSlug).Result)
-            Console.WriteLine("Error: Exsited Slug");
-        else
-
-            if (category.Id > 0) // true: update || false: add
-            await _context.Set<Category>()
-            .Where(c => c.Id == category.Id)
-            .ExecuteUpdateAsync(c => c
-                .SetProperty(x => x.Name, x => category.Name)
-                .SetProperty(x => x.UrlSlug, x => category.UrlSlug)
-                .SetProperty(x => x.Description, x => category.Description)
-                .SetProperty(x => x.ShowOnMenu, category.ShowOnMenu)
-                .SetProperty(x => x.Posts, category.Posts),
-                cancellationToken);
+        if (category.Id > 0)
+        {
+            _context.Set<Category>().Update(category);
+        }
         else
         {
-            _context.Categories.Add(category);
-            _context.SaveChanges();
+            _context.Set<Category>().Add(category);
         }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return category;
     }
+    //public async Task AddOrUpdateCategoryAsync(
+    //     Category category,
+    //        CancellationToken cancellationToken = default)
+    //{
+    //    if (IsCategorySlugExistedAsync(category.Id, category.UrlSlug).Result)
+    //        Console.WriteLine("Error: Exsited Slug");
+    //    else
+
+    //        if (category.Id > 0) // true: update || false: add
+    //        await _context.Set<Category>()
+    //        .Where(c => c.Id == category.Id)
+    //        .ExecuteUpdateAsync(c => c
+    //            .SetProperty(x => x.Name, x => category.Name)
+    //            .SetProperty(x => x.UrlSlug, x => category.UrlSlug)
+    //            .SetProperty(x => x.Description, x => category.Description)
+    //            .SetProperty(x => x.ShowOnMenu, category.ShowOnMenu)
+    //            .SetProperty(x => x.Posts, category.Posts),
+    //            cancellationToken);
+    //    else
+    //    {
+    //        _context.Categories.Add(category);
+    //        _context.SaveChanges();
+    //    }
+    //}
 
     // 1.h: Xóa một chuyên mục theo mã số cho trước
-    public async Task DeleteCategoryByIdAsync(
-        int CategoryId,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteCategoryByIdAsync(
+     int categoryId,
+     CancellationToken cancellationToken = default)
     {
-        await _context.Database
-                .ExecuteSqlRawAsync("DELETE FROM Posts WHERE Id = " + CategoryId,
-                cancellationToken);
+        var category = await _context.Set<Category>().FindAsync(categoryId);
+        if (category is null) return false;
+        _context.Set<Category>().Remove(category);
+        var rowsCount = await _context.SaveChangesAsync(cancellationToken);
+        return rowsCount > 0;
+    }
 
-        await _context.Set<Category>()
-            .Where(t => t.Id == CategoryId)
-            .ExecuteDeleteAsync(cancellationToken);
+    public async Task<bool> ToggleShowOnMenuFlagAsync(
+      int categoryId,
+      CancellationToken cancellationToken = default)
+    {
+        var category = await _context.Set<Category>().FindAsync(categoryId);
+        if (category is null) return false;
+        category.ShowOnMenu = !category.ShowOnMenu;
+        await _context.SaveChangesAsync(cancellationToken);
+        return category.ShowOnMenu;
+    }
+    //public async Task DeleteCategoryByIdAsync(
+    //    int CategoryId,
+    //    CancellationToken cancellationToken = default)
+    //{
+    //    await _context.Database
+    //            .ExecuteSqlRawAsync("DELETE FROM Posts WHERE Id = " + CategoryId,
+    //            cancellationToken);
+
+    //    await _context.Set<Category>()
+    //        .Where(t => t.Id == CategoryId)
+    //        .ExecuteDeleteAsync(cancellationToken);
+    //}
+
+    public async Task<bool> DeletePostsByIdAsync(
+      int postId,
+      CancellationToken cancellationToken = default)
+    {
+        var post = await _context.Set<Post>().FindAsync(postId);
+        if (post is null) return false;
+        _context.Set<Post>().Remove(post);
+        var rowsCount = await _context.SaveChangesAsync(cancellationToken);
+        return rowsCount > 0;
+    }
+
+    public async Task<bool> TogglePuslishedFlagAsync(
+      int postId,
+      CancellationToken cancellationToken = default)
+    {
+        var post = await _context.Set<Post>().FindAsync(postId);
+        if (post is null) return false;
+        post.Published = !post.Published;
+        await _context.SaveChangesAsync(cancellationToken);
+        return post.Published;
     }
 
     // 1.i: Kiểm tra tên định danh (slug)
     //của một chuyên mục đã tồn tài hay chưa
     public async Task<bool> IsCategorySlugExistedAsync(
-        int categoryId,
-        string slug,
-        CancellationToken cancellationToken = default)
+    int categoryId,
+    string slug,
+    CancellationToken cancellationToken = default)
     {
         return await _context.Set<Category>()
             .AnyAsync(x => x.Id != categoryId && x.UrlSlug == slug, cancellationToken);
@@ -268,7 +328,8 @@ public class BlogRepository : IBlogRepository
     // 1.j: Lấy và phân trang danh sách chuyên mục
     //kết quả trả về kiểu IPagedList<CategoryItem>
     public async Task<IPagedList<CategoryItem>> GetPagedCategoryAsync(
-        IPagingParams pagingParams,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         var categoriesQuery = _context.Set<Category>()
@@ -278,17 +339,20 @@ public class BlogRepository : IBlogRepository
                 Name = x.Name,
                 UrlSlug = x.UrlSlug,
                 Description = x.Description,
+                ShowOnMenu = x.ShowOnMenu,
                 PostCount = x.Posts.Count(p => p.Published)
             });
-        return await categoriesQuery.ToPagedListAsync(pagingParams, cancellationToken);
+        return await categoriesQuery.ToPagedListAsync(
+            pageNumber, pageSize,
+            nameof(Category.Name), "DESC",
+            cancellationToken);
     }
-
 
     // 1.k: Đếm số lượng bài viết trong N tháng gần nhất. N là tham số đầu vào.
     // Kết quả là một danh sách các đối tượng chứa các thông tin sau: Năm, Tháng, Số bài viết
     public async Task<IList<PostItem>> CountPostsMonthAsync(
-        int n,
-        CancellationToken cancellationToken = default)
+    int n,
+    CancellationToken cancellationToken = default)
     {
         return await _context.Set<Post>()
             .GroupBy(x => new { x.PostedDate.Year, x.PostedDate.Month })
@@ -304,6 +368,22 @@ public class BlogRepository : IBlogRepository
 
     }
 
+    public async Task<Post> GetPostByIdAsync(
+        int postId, bool includeDetails = false,
+        CancellationToken cancellationToken = default)
+    {
+        if (!includeDetails)
+        {
+            return await _context.Set<Post>().FindAsync(postId);
+        }
+
+        return await _context.Set<Post>()
+            .Include(x => x.Category)
+            .Include(x => x.Author)
+            .Include(x => x.Tags)
+            .FirstOrDefaultAsync(x => x.Id == postId, cancellationToken);
+    }
+
     // 1.l: Tìm một bài viết theo mã số
     public async Task<Post> FindPostByIDAsync(
         int id,
@@ -314,39 +394,100 @@ public class BlogRepository : IBlogRepository
                     .FirstOrDefaultAsync(cancellationToken);
     }
     // 1.m: Thêm hay cập nhật một bài viết
-    public async Task AddOrUpdatePostAsync(
-       Post postName,
-       CancellationToken cancellationToken = default)
-    {
-        if (IsPostSlugExistedAsync(postName.Id, postName.UrlSlug).Result)
-            Console.WriteLine("Error: Existed Slug");
-        else
+    //public async Task AddOrUpdatePostAsync(
+    //   Post postName,
+    //   CancellationToken cancellationToken = default)
+    //{
+    //    if (IsPostSlugExistedAsync(postName.Id, postName.UrlSlug).Result)
+    //        Console.WriteLine("Error: Existed Slug");
+    //    else
 
-           if (postName.Id > 0) // true: update || false: add
-            await _context.Set<Post>()
-            .Where(p => p.Id == postName.Id)
-            .ExecuteUpdateAsync(p => p
-                .SetProperty(x => x.Title, x => postName.Title)
-                .SetProperty(x => x.UrlSlug, x => postName.UrlSlug)
-                .SetProperty(x => x.ShortDescription, x => postName.ShortDescription)
-                .SetProperty(x => x.Description, x => postName.Description)
-                .SetProperty(x => x.Meta, x => postName.Meta)
-                .SetProperty(x => x.ImageUrl, x => postName.ImageUrl)
-                .SetProperty(x => x.ViewCount, x => postName.ViewCount)
-                .SetProperty(x => x.Published, x => postName.Published)
-                .SetProperty(x => x.PostedDate, x => postName.PostedDate)
-                .SetProperty(x => x.ModifiedDate, x => postName.ModifiedDate)
-                .SetProperty(x => x.CategoryId, x => postName.CategoryId)
-                .SetProperty(x => x.AuthorId, x => postName.AuthorId)
-                .SetProperty(x => x.Category, x => postName.Category)
-                .SetProperty(x => x.Author, x => postName.Author)
-                .SetProperty(x => x.Tags, x => postName.Tags),
-                cancellationToken);
+    //       if (postName.Id > 0) // true: update || false: add
+    //        await _context.Set<Post>()
+    //        .Where(p => p.Id == postName.Id)
+    //        .ExecuteUpdateAsync(p => p
+    //            .SetProperty(x => x.Title, x => postName.Title)
+    //            .SetProperty(x => x.UrlSlug, x => postName.UrlSlug)
+    //            .SetProperty(x => x.ShortDescription, x => postName.ShortDescription)
+    //            .SetProperty(x => x.Description, x => postName.Description)
+    //            .SetProperty(x => x.Meta, x => postName.Meta)
+    //            .SetProperty(x => x.ImageUrl, x => postName.ImageUrl)
+    //            .SetProperty(x => x.ViewCount, x => postName.ViewCount)
+    //            .SetProperty(x => x.Published, x => postName.Published)
+    //            .SetProperty(x => x.PostedDate, x => postName.PostedDate)
+    //            .SetProperty(x => x.ModifiedDate, x => postName.ModifiedDate)
+    //            .SetProperty(x => x.CategoryId, x => postName.CategoryId)
+    //            .SetProperty(x => x.AuthorId, x => postName.AuthorId)
+    //            .SetProperty(x => x.Category, x => postName.Category)
+    //            .SetProperty(x => x.Author, x => postName.Author)
+    //            .SetProperty(x => x.Tags, x => postName.Tags),
+    //            cancellationToken);
+    //    else
+    //    {
+    //        _context.AddRange(postName);
+    //        _context.SaveChanges();
+    //    }
+    //}
+
+    public async Task<Post> CreateOrUpdatePostAsync(
+            Post post, IEnumerable<string> tags,
+            CancellationToken cancellationToken = default)
+    {
+        if (post.Id > 0)
+        {
+            await _context.Entry(post).Collection(x => x.Tags).LoadAsync(cancellationToken);
+        }
         else
         {
-            _context.AddRange(postName);
-            _context.SaveChanges();
+            post.Tags = new List<Tag>();
         }
+
+        var validTags = tags.Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => new
+            {
+                Name = x,
+                Slug = GenerateSlug(x)
+            })
+            .GroupBy(x => x.Slug)
+            .ToDictionary(g => g.Key, g => g.First().Name);
+
+
+        foreach (var kv in validTags)
+        {
+            if (post.Tags.Any(x => string.Compare(x.UrlSlug, kv.Key, StringComparison.InvariantCultureIgnoreCase) == 0)) continue;
+
+            var tag = await FindTagWithSlugAsync(kv.Key, cancellationToken) ?? new Tag()
+            {
+                Name = kv.Value,
+                Description = kv.Value,
+                UrlSlug = kv.Key
+            };
+
+            post.Tags.Add(tag);
+        }
+
+        post.Tags = post.Tags.Where(t => validTags.ContainsKey(t.UrlSlug)).ToList();
+
+        if (post.Id > 0)
+            _context.Update(post);
+        else
+            _context.Add(post);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return post;
+    }
+
+    private string GenerateSlug(string s)
+    {
+        return s.ToLower().Replace(".", "dot").Replace(" ", "-");
+    }
+
+    public async Task<Tag> GetTagAsync(
+        string slug, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Tag>()
+            .FirstOrDefaultAsync(x => x.UrlSlug == slug, cancellationToken);
     }
 
     // 1.n: Chuyển đổi trạng thái Published của bài viết
@@ -436,7 +577,7 @@ public class BlogRepository : IBlogRepository
     // 1.s: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
     // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
     public async Task<IPagedList<Post>> GetPagedPostsAsync(
-        PostQuery pq, IPagingParams pagingParams, 
+        PostQuery pq, IPagingParams pagingParams,
         CancellationToken cancellationToken = default)
     {
         return await FilterPost(pq)
@@ -451,7 +592,7 @@ public class BlogRepository : IBlogRepository
             .Include(a => a.Author);
         return query
             .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
-            .WhereIf(!string.IsNullOrWhiteSpace(pq.AuthorSlug), p => p.UrlSlug == pq.AuthorSlug)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.AuthorSlug), p => p.Author.UrlSlug == pq.AuthorSlug)
             .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
             .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
             .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)
@@ -460,7 +601,12 @@ public class BlogRepository : IBlogRepository
             .WhereIf(pq.TagId > 0, p => p.Tags.Any(x => x.Id == pq.TagId))
             .WhereIf(!string.IsNullOrWhiteSpace(pq.TagSlug), p => p.Tags.Any(x => x.UrlSlug == pq.TagSlug))
             .WhereIf(pq.PublishedOnly, p => p.Published == pq.PublishedOnly)
-            .WhereIf(!string.IsNullOrWhiteSpace(pq.PostSlug), p => p.UrlSlug == pq.PostSlug);
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.PostSlug), p => p.UrlSlug == pq.PostSlug)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.Keyword), p => p.Title.Contains(pq.Keyword) ||
+                    p.ShortDescription.Contains(pq.Keyword) ||
+                    p.Description.Contains(pq.Keyword) ||
+                    p.Category.Name.Contains(pq.Keyword) ||
+                    p.Tags.Any(t => t.Name.Contains(pq.Keyword)));
 
     }
 
@@ -532,7 +678,7 @@ public class BlogRepository : IBlogRepository
     //        .WhereIf(pq.PublishedOnly, p => p.Published == true)
     //        .ToPagedListAsync(pageNumber, pageSize,"Id","DESC",cancellationToken);
     //}
-   
+
     // 1.t: Tương tự câu trên nhưng yêu cầu trả về kiểu IPagedList<T>. Trong đó T
     // là kiểu dữ liệu của đối tượng mới được tạo từ đối tượng Post.Hàm này có
     // thêm một đầu vào là Func<IQueryable<Post>, IQueryable<T>> mapper
@@ -546,79 +692,4 @@ public class BlogRepository : IBlogRepository
     }
     #endregion
 
-    #region Phần C.2
-    //Câu 2. B : Tìm một tác giả theo mã số
-    public async Task<Author> GetAuthorByIdAsync(int Id, CancellationToken cancellationToken = default)
-    {
-        return await _context.Set<Author>()
-            .Where(t => t.Id == Id)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    //Câu 2. C : Tìm một tác giả theo tên định danh (slug)
-    public async Task<Author> GetAuthorByUrlSlugAsync(string Slug, CancellationToken cancellationToken = default)
-    {
-        return await _context.Set<Author>()
-            .Where(t => t.UrlSlug == Slug)
-            .FirstOrDefaultAsync(cancellationToken);
-    }
-
-    //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
-    //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
-    public async Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(IPagingParams pagingParams, CancellationToken cancellationToken = default)
-    {
-        var authorQuery = _context.Set<Author>()
-            .Select(x => new AuthorItem()
-            {
-                Id = x.Id,
-                FullName = x.FullName,
-                UrlSlug = x.UrlSlug,
-                ImageUrl = x.ImageUrl,
-                JoinedDate = x.JoinedDate,
-                Email = x.Email,
-                Notes = x.Notes
-            });
-        return await authorQuery
-            .ToPagedListAsync(pagingParams, cancellationToken);
-    }
-
-    //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả
-    public async Task AddAuthorAsync(Author author, CancellationToken cancellationToken = default)
-    {
-        if (IsPostSlugExistedAsync(author.Id, author.UrlSlug).Result)
-            Console.WriteLine("Error: Exsited Slug");
-        else
-
-                if (author.Id > 0) // true: update || false: add
-        {
-            await _context.Set<Author>()
-                  .Where(x => x.Id == author.Id)
-                  .ExecuteUpdateAsync(c => c
-                    .SetProperty(x => x.FullName, author.FullName)
-                    .SetProperty(x => x.UrlSlug, author.UrlSlug)
-                    .SetProperty(x => x.ImageUrl, author.ImageUrl)
-                    .SetProperty(x => x.JoinedDate, author.JoinedDate)
-                    .SetProperty(x => x.Email, author.Email)
-                    .SetProperty(x => x.Notes, author.Notes)
-                    .SetProperty(x => x.Posts, author.Posts),
-                     cancellationToken);
-        }
-        else
-        {
-            _context.Authors.AddRange(author);
-            _context.SaveChanges();
-        }
-    }
-
-    //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.
-    public async Task<IList<Author>> ListAuthorAsync(int N, CancellationToken cancellationToken = default)
-    {
-        return await _context.Set<Author>()
-            .Include(x => x.Posts)
-            .Include(x => x.Id)
-            .OrderByDescending(p => p.FullName)
-            .Take(N)
-            .ToListAsync(cancellationToken);
-    }
-    #endregion
 }
