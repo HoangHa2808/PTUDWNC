@@ -1,29 +1,29 @@
-﻿//using Microsoft.AspNetCore.Mvc;
-//using System.Net;
-//using System.Net.Mail;
-//using TatBlog.Core.Entities;
-//using TatBlog.Services.Blogs;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mail;
+using TatBlog.Core.Entities;
+using TatBlog.Services.Blogs;
 
-//namespace TatBlog.WebApp.Controllers
-//{
-//    public class NewsletterController : Controller
-//    {
-//        private readonly ISubscriberRepository _subscriberRepository;
-//        private readonly IWebHostEnvironment _webHostEnvironment;
-//        private readonly IConfiguration _configuration;
+namespace TatBlog.WebApp.Controllers
+{
+    public class NewsletterController : Controller
+    {
+        //private readonly ISubscriberRepository _subscriberRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IConfiguration _configuration;
 
-//        public NewsletterController(ISubscriberRepository subscriberRepository, IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
-//        {
-//            _subscriberRepository = subscriberRepository;
-//            _webHostEnvironment = webHostEnvironment;
-//            _configuration = configuration;
-//        }
+        public NewsletterController(ISubscriberRepository subscriberRepository, IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
+        {
+            _subscriberRepository = subscriberRepository;
+            _webHostEnvironment = webHostEnvironment;
+            _configuration = configuration;
+        }
 
-//        #region Subscribe
-//        public IActionResult Subscribe(string message)
-//        {
-//            return View(message);
-//        }
+        #region Subscribe
+        public IActionResult Subscribe(string message)
+        {
+            return View(message);
+        }
 
 //        [HttpPost]
 //        public async Task<IActionResult> SubscribeAsync(string email)

@@ -1,0 +1,78 @@
+﻿@model IPagedList<AuthorItem>
+@{
+    ViewData["PageTitle"] = "Danh sách tác giả";
+    var authorsList = Model;
+}
+
+<h1>
+    Danh sách tác giả
+</h1>
+
+<!-- Hiển thị Form để tìm bài viết -->
+@*<partial name="_AuthorFilterPane" model="@Model" />*@
+
+
+@if (authorsList != null && authorsList.Count > 0)
+{
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Họ Tên tác giả</th>
+                <th>Số bài viết</th>
+                <th>Slug</th>
+                <th>Ngày viết bài</th>
+                <th>Chú thích</th>
+                <th>Chỉnh sửa</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var author in authorsList)
+            {
+                <tr>
+                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Authors"
+                           asp-action="Edit"
+                           asp-route-id="@author.Id"
+                           class="text-bold">
+                            @author.FullName
+                        </a>
+
+                        <p class="text-bold">
+                            @author.Email
+                        </p>
+                    </td>
+                    <td>
+                        @author.PostCount
+                    </td>
+                    <td>
+                        @author.UrlSlug
+                    </td>
+                    <td>
+                        @author.JoinedDate
+                    </td>
+                    <td>
+                        @author.Notes
+                    </td>
+                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Authors"
+                           asp-action="Delete"
+                           asp-route-id="@author.Id"
+                           class="btn btn-sm"
+                           onclick="return confirm('Bạn có muốn xoá không?')">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1 class="text-danger">
+        Không tìm thấy tác giả nào
+    </h1>
+}

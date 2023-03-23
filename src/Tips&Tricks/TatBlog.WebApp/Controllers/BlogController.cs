@@ -126,6 +126,7 @@ namespace TatBlog.WebApp.Controllers
             #region Hiển thị chi tiết 1 bài viết khi người dùng nhấn vào
             // nút Xem chi tiết hoặc tiêu đề bài viết ở trang chủ
             public async Task<IActionResult> Post(
+                int year, int month, int day,
                 string slugPost = null,
             string keyword = null,
              int pageNumber = 1,
@@ -134,13 +135,16 @@ namespace TatBlog.WebApp.Controllers
 
             var postQuery = new PostQuery()
             {
-
                 PublishedOnly = true,
-                Keyword = keyword
+                Keyword = keyword,
+                PostSlug = slugPost,
+                PostedDay = day,
+                PostedMonth = month,
+                PostedYear = year
             };
 
             var postsList = await _blogRepository
-                .GetPagedPostAsync(postQuery, pageNumber, pageSize);
+                .GetPagedPostAsync(postQuery, pageNumber, pageNumber);
 
             ViewBag.PostQuery = postQuery;
             //ViewBag.
@@ -153,19 +157,18 @@ namespace TatBlog.WebApp.Controllers
         #region Hiển thị danh sách bài viết được đăng trong tháng và năm đã chọn
         public async Task<IActionResult> Archives(
             string slugPost,
-            int year, int month, int day,
+            int year, int month,
             string keyword = null,
              int pageNumber = 1,
              int pageSize = 3)
         {
-
             var postQuery = new PostQuery()
             {
-
                 PublishedOnly = true,
                 Keyword = keyword,
                 PostSlug = slugPost,
-               
+                PostedYear = year,
+                PostedMonth = month
             };
 
             var postsList = await _blogRepository

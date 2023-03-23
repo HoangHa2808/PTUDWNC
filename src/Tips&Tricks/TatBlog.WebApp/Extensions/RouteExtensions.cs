@@ -31,6 +31,11 @@ namespace TatBlog.WebApp.Extensions
                 defaults: new { controller = "Blog", action = "Post" });
 
             endpoints.MapControllerRoute(
+                name: "posts-by-archives",
+                pattern: "blog/archives/{year:int}/{month:int}",
+                defaults: new { controller = "Blog", action = "Archives" });
+
+            endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Blog}/{action=Index}/{id?}");
 
