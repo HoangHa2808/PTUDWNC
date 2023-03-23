@@ -1,4 +1,5 @@
-﻿@model IPagedList<Post>
+﻿@using TatBlog.Core.Contracts;
+@model IPagedList<Post>
 
 @{
     ViewData["PageTitle"] = "Tác giả";
@@ -9,7 +10,7 @@
     @if (!string.IsNullOrWhiteSpace(postQuery.Keyword))
     {
         <h3 class="text-primary mb-3">
-            Những bài viết chứa từ khoá '@postQuery.Keyword'
+            Những bài viết chứa từ khoá '@postQuery.AuthorSlug'
         </h3>
     }
 

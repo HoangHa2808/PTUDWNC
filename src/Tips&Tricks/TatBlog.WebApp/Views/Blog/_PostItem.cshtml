@@ -15,10 +15,13 @@
             </div>
             <div class="col-md-8">
                 <div class="card-body">
-                    <a asp-controller="Blog" asp-action="Post" asp-route-slug="@Model.UrlSlug" 
-                    asp-route-year="@Model.PostedDate.Year"
-                    asp-route-month="@Model.PostedDate.Month"
-                    asp-route-day="@Model.PostedDate.Day">
+                    <a asp-area=""
+                       asp-controller="Blog"
+                       asp-action="Post"
+                       asp-route-slug="@Model.UrlSlug"
+                       asp-route-year="@Model.PostedDate.Year"
+                       asp-route-month="@Model.PostedDate.Month"
+                       asp-route-day="@Model.PostedDate.Day">
                         <h5 class="card-title">
                             @Model.Title
                         </h5>
@@ -27,7 +30,10 @@
                         <small class="text-muted">
                             Tác giả:
                         </small>
-                        <a asp-controller="Blog" asp-action="Author" asp-route-slug="@Model.Author.UrlSlug">
+                        <a asp-area=""
+                           asp-controller="Blog"
+                           asp-action="Author"
+                           asp-route-slug="@Model.Author.UrlSlug">
                             <span class="text-primary">
                                 @Model.Author.FullName
                             </span>
@@ -35,7 +41,10 @@
                         <small class="text-muted">
                             Chủ đề:
                         </small>
-                        <a asp-controller="Blog" asp-action="Category" asp-route-slug="@Model.Category.UrlSlug">
+                        <a asp-area=""
+                           asp-controller="Blog"
+                           asp-action="Category"
+                           asp-route-slug="@Model.Category.UrlSlug">
                             <span class="text-primary">
                                 @Model.Category.Name
                             </span>
@@ -50,7 +59,7 @@
 
                     <div class="text-end">
                         <a asp-area=""
-                            asp-controller="Blog"
+                           asp-controller="Blog"
                            asp-action="Post"
                            asp-route-year="@Model.PostedDate.Year"
                            asp-route-month="@Model.PostedDate.Month"
