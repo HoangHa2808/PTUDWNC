@@ -592,7 +592,7 @@ public class BlogRepository : IBlogRepository
             .Include(a => a.Author);
         return query
             .WhereIf(pq.AuthorId > 0, p => p.AuthorId == pq.AuthorId)
-            .WhereIf(!string.IsNullOrWhiteSpace(pq.AuthorSlug), p => p.UrlSlug == pq.AuthorSlug)
+            .WhereIf(!string.IsNullOrWhiteSpace(pq.AuthorSlug), p => p.Author.UrlSlug == pq.AuthorSlug)
             .WhereIf(pq.PostId > 0, p => p.Id == pq.PostId)
             .WhereIf(pq.CategoryId > 0, p => p.CategoryId == pq.CategoryId)
             .WhereIf(!string.IsNullOrWhiteSpace(pq.CategorySlug), p => p.Category.UrlSlug == pq.CategorySlug)

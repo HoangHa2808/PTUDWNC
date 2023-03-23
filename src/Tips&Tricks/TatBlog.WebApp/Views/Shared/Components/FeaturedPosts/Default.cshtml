@@ -9,11 +9,14 @@
         @foreach (var item in Model)
         {
             <li class="list-group-item">
-                <a asp-controller="Blog"
+                <a asp-area=""
+                    asp-controller="Blog"
                    asp-action="Post"
-               asp-route-slug="@item.UrlSlug"
-                   title="@item.Title">
-                    @item.Description
+                   asp-route-year="@item.PostedDate.Year"
+                   asp-route-month="@item.PostedDate.Month"
+                   asp-route-day="@item.PostedDate.Day"
+                   asp-route-slug="@item.UrlSlug">
+                   @item.Title
                 </a>
             </li>
         }

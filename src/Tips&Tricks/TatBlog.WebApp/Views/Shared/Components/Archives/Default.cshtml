@@ -2,20 +2,23 @@
 
 <div class="mb-4">
     <h3 class="text-success mb-2">
-        Danh sách 12 tháng gần nhất và số lượng bài viết trong mỗi tháng dưới dạng các liên kết
+        Danh sách 12 tháng gần nhất và số lượng bài viết
     </h3>
 
     <ul class="list-group">
         @foreach (var item in Model)
         {
             <li class="list-group-item">
-                <a asp-controller="Blog"
-                   asp-action="Post"
+                <a asp-area=""
+                    asp-controller="Blog"
+                   asp-action="Archives"
                    asp-route-year="@item.Year"
-                   asp-route-month="@item.Month"
-                   title="@item.Year">
-                    @DateTime.ParseExact(@item.Year + "-" + (@item.Month.ToString()).PadLeft(2, '0')+"-01", "yyyy-MM-dd",
-                System.Globalization.CultureInfo.InvariantCulture).ToString("MMMM")
+                   asp-route-month="@item.Month">
+                    @item.Year
+                    @item.Month
+                    @*@DateTime.ParseExact(@item.Year + "-" + (@item.Month.ToString()).PadLeft(2, '0')+"-01", "yyyy-MM-dd",
+                System.Globalization.CultureInfo.InvariantCulture).ToString("MMMM")*@
+                    <span>(@item.PostCount)</span>
                 </a>
             </li>
         }

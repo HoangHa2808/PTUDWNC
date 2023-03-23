@@ -27,8 +27,18 @@ namespace TatBlog.WebApp.Extensions
 
             endpoints.MapControllerRoute(
                 name: "single-post",
+                pattern: "blog/postsdetail/{slug}",
+                defaults: new { controller = "Blog", action = "Post" });
+            
+            endpoints.MapControllerRoute(
+                name: "single-post",
                 pattern: "blog/post/{year:int}/{month:int}/{day:int}/{slug}",
                 defaults: new { controller = "Blog", action = "Post" });
+
+            endpoints.MapControllerRoute(
+                name: "posts-by-archives",
+                pattern: "blog/archives/{year:int}/{month:int}",
+                defaults: new { controller = "Blog", action = "Archives" });
 
             endpoints.MapControllerRoute(
                 name: "admin-area",
