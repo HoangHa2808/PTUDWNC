@@ -1,7 +1,71 @@
-﻿@{
+﻿@model IPagedList<TagItem>
+@{
     ViewData["PageTitle"] = "Thẻ";
+    var tagList = Model;
 }
 
 <h1>
-    Đây là khu vực dành cho người quản trị
+    Danh sách các thẻ
 </h1>
+
+
+@if (tagList != null && tagList.Count > 0)
+{
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Tên</th>
+                <th>Slug</th>
+                @*<th>Số bài đăng</th>
+                <th>Mô tả</th>*@
+                <th>Chỉnh sửa</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var tag in tagList)
+            {
+                <tr>
+                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Tags"
+                           asp-action="Edit"
+                           asp-route-id="@tag.Id"
+                           class="text-bold">
+                            @tag.Name
+                        </a>
+
+                        <p class="text-bold">
+                            @tag.Description
+                        </p>
+                    </td>
+                    <td>
+                        @tag.UrlSlug
+                    </td>
+                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Tags"
+                           asp-action="Edit"
+                           class="btn btn-sm">
+                            <i class="fa fa-pen" style="color: #3b5581"> Thêm</i>
+                        </a>
+                        <a asp-area="Admin"
+                           asp-controller="Tags"
+                           asp-action="Delete"
+                           asp-route-id="@tag.Id"
+                           class="btn btn-sm"
+                           onclick="return confirm('Bạn có muốn xoá không?')">
+                            <i class="fa fa-trash" style="color: #3b5581;"> Xoá</i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1 class="text-danger">
+        Không tìm thấy chủ đề nào
+    </h1>
+}

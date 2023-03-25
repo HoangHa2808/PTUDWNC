@@ -239,7 +239,7 @@ namespace TatBlog.WinApp
                 Posts = new List<Post>(),
                 ShowOnMenu = true
             };
-            await blogRepo.AddOrUpdateCategoryAsync(category);
+            await blogRepo.CreateOrUpdateCategoryAsync(category);
         }
 
         // Câu 1.h: Xóa một chuyên mục theo mã số
@@ -270,17 +270,19 @@ namespace TatBlog.WinApp
         }
 
         // Câu 1.j: Lấy và phân trang danh sách chuyên mục
-        static async void LayVaPhanTrang(BlogDbContext context)
+        static async void LayVaPhanTrang(BlogDbContext context, 
+            int PageNumber = 1,
+               int PageSize = 6)
         {
             IBlogRepository blogRepo = new BlogRepository(context);
+           
             var pagingParams1 = new PagingParams()
             {
-                PageNumber = 1,
-                PageSize = 6,
+               
                 SortColumn = "name",
                 SortOrder = "desc"
             };
-            var categoriesList = await blogRepo.GetPagedCategoryAsync(pagingParams1);
+            var categoriesList = await blogRepo.GetPagedCategoryAsync(PageNumber, PageSize);
             Console.WriteLine("{0,-5}{1,-50}{2,10}",
         "ID", "Name", "Count");
             foreach (var item in categoriesList)

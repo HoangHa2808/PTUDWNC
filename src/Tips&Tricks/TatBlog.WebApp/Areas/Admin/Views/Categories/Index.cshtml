@@ -1,18 +1,12 @@
-﻿@*@model TatBlog.WebApp.Areas.Admin.Models.CategoryFilterModel*@
-@model IPagedList<CategoryItem>
+﻿@model IPagedList<CategoryItem>
 @{
     ViewData["PageTitle"] = "Danh sách chủ đề";
-    //var categoriesList = ViewBag.CategoriesList as IPagedList<CategoryItem>;
     var categoriesList = Model;
-
 }
 
 <h1>
     Danh sách chủ đề
 </h1>
-
-<!-- Hiển thị Form để tìm bài viết -->
-@*<partial name="_CategoryFilterPane" />*@
 
 
 @if (categoriesList != null && categoriesList.Count > 0)
@@ -23,7 +17,7 @@
                 <th>Chủ đề</th>
                 <th>Slug</th>
                 <th>Show On Menu</th>
-                <th>Chỉnh sửa<th>
+                <th>Chỉnh sửa</th>
             </tr>
         </thead>
 
@@ -33,10 +27,10 @@
                 <tr>
                     <td>
                         <a asp-area="Admin"
-                        asp-controller="Categories"
-                        asp-action="Edit"
-                        asp-route-id="@category.Id"
-                        class="text-bold">
+                           asp-controller="Categories"
+                           asp-action="Edit"
+                           asp-route-id="@category.Id"
+                           class="text-bold">
                             @category.Name
                         </a>
 
@@ -52,30 +46,37 @@
                            asp-controller="Categories"
                            asp-action="Toggle"
                            asp-route-id="@category.Id"
+                           class="text-bold"
                            type="submit"
-                           class="btn btn-primary@(category.ShowOnMenu ? "btn-success" : "btn-danger")">
+                           class="btn btn-sm@(category.ShowOnMenu ? "btn-success" : "btn-danger")">
                             @if (category.ShowOnMenu)
                             {
-                                <i class="fa fa-check"></i>
+                                <i class="fa fa-check"> Có</i>
                             }
                             else
                             {
-                                <i class="fa fa-times"></i>
+                                <i class="fa fa-times"> Không</i>
                             }
                         </a>
                     </td>
                     <td>
                         <a asp-area="Admin"
                            asp-controller="Categories"
+                           asp-action="Edit"
+                           class="btn btn-sm">
+                            <i class="fa fa-pen" style="color: #3b5581"> Thêm</i>
+                        </a>
+                        <a asp-area="Admin"
+                           asp-controller="Categories"
                            asp-action="Delete"
                            asp-route-id="@category.Id"
                            class="btn btn-sm"
                            onclick="return confirm('Bạn có muốn xoá không?')">
-                            <i class="fa fa-trash"></i>
+                            <i class="fa fa-trash" style="color: #3b5581"> Xoá</i>
                         </a>
                     </td>
                 </tr>
-                }
+            }
         </tbody>
     </table>
 }
@@ -85,4 +86,3 @@ else
         Không tìm thấy chủ đề nào
     </h1>
 }
-@*<partial name="_PagerCategory" model="@categoriesList" />*@

@@ -1,7 +1,83 @@
-﻿@{
-    ViewData["PageTitle"] = "Bảng điều khiển";
+﻿@model IPagedList<Subscriber>
+@{
+    ViewData["PageTitle"] = "Đăng ký theo dõi blog";
+    var subList = Model;
 }
 
 <h1>
-    Đây là khu vực dành cho người quản trị
+    Đây là khu vực quản lý đăng ký theo dõi blog
 </h1>
+
+@if (subList != null && subList.Count > 0)
+{
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Ngày đăng ký</th>
+                <th>Ngày huỷ đăng ký</th>
+                <th>Lý do</th>
+                <th>Ghi chú</th>
+                @*<th>Trạng thái</th>*@
+                <th>Chỉnh sửa</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var subscriber in subList)
+            {
+                <tr>
+                    <td>
+                        <a asp-area="Admin"
+                   asp-controller="Subscribers"
+                   asp-action="Edit"
+                   asp-route-id="@subscriber.Id"
+                           class="text-bold">
+                            @subscriber.Email
+                        </a>
+
+                        <p class="text-bold">
+                        </p>
+                    </td>
+                    <td>
+                        @subscriber.SubscribedDate
+                    </td>
+                    <td>
+                        @subscriber.UnsubscribedDate
+                    </td>
+                    <td>
+                        @subscriber.Reasons
+                    </td>
+                    @*<td>
+                        <a asp-area="Admin"
+                           asp-controller="Subscribres"
+                           asp-action="Toggle"
+                   asp-route-id="@subscriber.Id"
+                           class="text-bold"
+                           type="submit"
+                           class="btn btn-sm">
+                            @if ((bool)subscriber.SubscribeState)
+                            {
+                                <i class="fa fa-check"> Chấp thuận</i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-times"> Không chấp thuận</i>
+                            }
+                        </a>
+                    </td>*@
+                    <td>
+                        @subscriber.Notes
+                    </td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1 class="text-danger">
+        Không tìm thấy đăng ký theo dõi blog nào
+    </h1>
+}
