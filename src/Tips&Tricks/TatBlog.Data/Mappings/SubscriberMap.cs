@@ -13,7 +13,7 @@ namespace TatBlog.Data.Mappings
     {
         public void Configure(EntityTypeBuilder<Subscriber> builder)
         {
-            builder.ToTable("Subscribers");
+            builder.ToTable("Subscriber");
 
             builder.HasKey(s => s.Id);
 
@@ -29,8 +29,11 @@ namespace TatBlog.Data.Mappings
 
             builder.Property(s => s.SubscribeState)
                 .IsRequired();
+            
+            builder.Property(s => s.UnsubscribeState)
+                .IsRequired();
 
-            builder.Property(s => s.Reason)
+            builder.Property(s => s.Reasons)
                 .HasMaxLength(500);
 
             builder.Property(s => s.Notes)

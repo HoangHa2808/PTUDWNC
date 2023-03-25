@@ -1,7 +1,92 @@
-﻿@{
+﻿@model IPagedList<Comment>
+@{
     ViewData["PageTitle"] = "Bình luận";
+    var commentList = Model;
 }
 
 <h1>
     Các bình luận
 </h1>
+
+
+@if (commentList != null && commentList.Count > 0)
+{
+    <table class="table table-responsive table-striped">
+        <thead>
+            <tr>
+                <th>Tên</th>
+                <th>Nội dung</th>
+                <th>Ngày bình luận</th>
+                <th>Trạng thái</th>
+                <th>Chỉnh sửa</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var comment in commentList)
+            {
+                <tr>
+                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Comments"
+                           asp-action="Edit"
+                           asp-route-id="@comment.Id"
+                           class="text-bold">
+                            @comment.Name
+                        </a>
+
+                        <p class="text-bold">
+                        </p>
+                    </td>
+                    <td>
+                        @comment.Description
+                    </td>
+                    <td>
+                        @comment.PostedDate
+                    </td>
+                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Comments"
+                           asp-action="Toggle"
+                           asp-route-id="@comment.Id"
+                           class="text-bold"
+                           type="submit"
+                           class="btn btn-sm@(comment.IsApproved ? "btn-success" : "btn-danger")">
+                            @if (comment.IsApproved)
+                            {
+                                <i class="fa fa-check"> Chấp thuận</i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-times"> Không chấp thuận</i>
+                            }
+                        </a>
+                    </td> 
+                    
+                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Comments"
+                           asp-action="Edit"
+                           class="btn btn-sm">
+                            <i class="fa fa-pen" style="color: #3b5581"> Thêm</i>
+                        </a>
+                        <a asp-area="Admin"
+                           asp-controller="Comments"
+                           asp-action="Delete"
+                           asp-route-id="@comment.Id"
+                           class="btn btn-sm"
+                           onclick="return confirm('Bạn có muốn xoá không?')">
+                            <i class="fa fa-trash" style="color: #3b5581"> Xoá</i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h1 class="text-danger">
+        Không tìm thấy bình luận nào
+    </h1>
+}

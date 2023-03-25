@@ -153,6 +153,11 @@ public class BlogRepository : IBlogRepository
         return await tagsQuery.FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<Tag> GetTagByIdAsync(int Id)
+    {
+        return await _context.Set<Tag>().FindAsync(Id);
+    }
+
     // Cau 1.c: Lấy danh sách tất cả các thẻ (Tag) kèm theo số bài viết chứa thẻ đó
     public async Task<IList<TagItem>> GetTagsItemsAsync(
         CancellationToken cancellationToken = default)
@@ -183,6 +188,43 @@ public class BlogRepository : IBlogRepository
         await _context.Set<Tag>()
             .Where(t => t.Id == id)
             .ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task<bool> DeleteTagByIdAsync(
+     int tagId,
+     CancellationToken cancellationToken = default)
+    {
+        var tag = await _context.Set<Tag>().FindAsync(tagId);
+        if (tag is null) return false;
+        _context.Set<Tag>().Remove(tag);
+        var rowsCount = await _context.SaveChangesAsync(cancellationToken);
+        return rowsCount > 0;
+    }
+
+    public async Task<Tag> CreateOrUpdateTagAsync(
+        Tag tag, CancellationToken cancellationToken = default)
+    {
+        if (tag.Id > 0)
+        {
+            _context.Set<Tag>().Update(tag);
+        }
+        else
+        {
+            _context.Set<Tag>().Add(tag);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return tag;
+    }
+
+    public async Task<bool> IsTagSlugExistedAsync(
+   int tagId,
+   string slug,
+   CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Tag>()
+            .AnyAsync(x => x.Id != tagId && x.UrlSlug == slug, cancellationToken);
     }
 
     // Câu 1.e: Tìm một chuyên mục (Category) theo tên định danh(slug)
@@ -393,41 +435,42 @@ public class BlogRepository : IBlogRepository
                     .Where(x => x.Id == id)
                     .FirstOrDefaultAsync(cancellationToken);
     }
-    // 1.m: Thêm hay cập nhật một bài viết
-    //public async Task AddOrUpdatePostAsync(
-    //   Post postName,
-    //   CancellationToken cancellationToken = default)
-    //{
-    //    if (IsPostSlugExistedAsync(postName.Id, postName.UrlSlug).Result)
-    //        Console.WriteLine("Error: Existed Slug");
-    //    else
 
-    //       if (postName.Id > 0) // true: update || false: add
-    //        await _context.Set<Post>()
-    //        .Where(p => p.Id == postName.Id)
-    //        .ExecuteUpdateAsync(p => p
-    //            .SetProperty(x => x.Title, x => postName.Title)
-    //            .SetProperty(x => x.UrlSlug, x => postName.UrlSlug)
-    //            .SetProperty(x => x.ShortDescription, x => postName.ShortDescription)
-    //            .SetProperty(x => x.Description, x => postName.Description)
-    //            .SetProperty(x => x.Meta, x => postName.Meta)
-    //            .SetProperty(x => x.ImageUrl, x => postName.ImageUrl)
-    //            .SetProperty(x => x.ViewCount, x => postName.ViewCount)
-    //            .SetProperty(x => x.Published, x => postName.Published)
-    //            .SetProperty(x => x.PostedDate, x => postName.PostedDate)
-    //            .SetProperty(x => x.ModifiedDate, x => postName.ModifiedDate)
-    //            .SetProperty(x => x.CategoryId, x => postName.CategoryId)
-    //            .SetProperty(x => x.AuthorId, x => postName.AuthorId)
-    //            .SetProperty(x => x.Category, x => postName.Category)
-    //            .SetProperty(x => x.Author, x => postName.Author)
-    //            .SetProperty(x => x.Tags, x => postName.Tags),
-    //            cancellationToken);
-    //    else
-    //    {
-    //        _context.AddRange(postName);
-    //        _context.SaveChanges();
-    //    }
-    //}
+     //1.m: Thêm hay cập nhật một bài viết
+    public async Task AddOrUpdatePostAsync(
+       Post postName,
+       CancellationToken cancellationToken = default)
+    {
+        if (IsPostSlugExistedAsync(postName.Id, postName.UrlSlug).Result)
+            Console.WriteLine("Error: Existed Slug");
+        else
+
+           if (postName.Id > 0) // true: update || false: add
+            await _context.Set<Post>()
+            .Where(p => p.Id == postName.Id)
+            .ExecuteUpdateAsync(p => p
+                .SetProperty(x => x.Title, x => postName.Title)
+                .SetProperty(x => x.UrlSlug, x => postName.UrlSlug)
+                .SetProperty(x => x.ShortDescription, x => postName.ShortDescription)
+                .SetProperty(x => x.Description, x => postName.Description)
+                .SetProperty(x => x.Meta, x => postName.Meta)
+                .SetProperty(x => x.ImageUrl, x => postName.ImageUrl)
+                .SetProperty(x => x.ViewCount, x => postName.ViewCount)
+                .SetProperty(x => x.Published, x => postName.Published)
+                .SetProperty(x => x.PostedDate, x => postName.PostedDate)
+                .SetProperty(x => x.ModifiedDate, x => postName.ModifiedDate)
+                .SetProperty(x => x.CategoryId, x => postName.CategoryId)
+                .SetProperty(x => x.AuthorId, x => postName.AuthorId)
+                .SetProperty(x => x.Category, x => postName.Category)
+                .SetProperty(x => x.Author, x => postName.Author)
+                .SetProperty(x => x.Tags, x => postName.Tags),
+                cancellationToken);
+        else
+        {
+            _context.AddRange(postName);
+            _context.SaveChanges();
+        }
+    }
 
     public async Task<Post> CreateOrUpdatePostAsync(
             Post post, IEnumerable<string> tags,
@@ -488,6 +531,25 @@ public class BlogRepository : IBlogRepository
     {
         return await _context.Set<Tag>()
             .FirstOrDefaultAsync(x => x.UrlSlug == slug, cancellationToken);
+    }
+
+    public async Task<IPagedList<TagItem>> GetPagedTagAsync(
+           int pageNumber = 1,
+           int pageSize = 10,
+           CancellationToken cancellationToken = default)
+    {
+        var tagQuery = _context.Set<Tag>()
+            .Select(x => new TagItem()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlSlug = x.UrlSlug,
+                Description = x.Description,
+                    PostCount =x.Posts.Count
+            });
+        return await tagQuery
+            .ToPagedListAsync(pageNumber, pageSize,
+        nameof(Tag.Name), "DESC", cancellationToken);
     }
 
     // 1.n: Chuyển đổi trạng thái Published của bài viết
@@ -683,6 +745,7 @@ public class BlogRepository : IBlogRepository
     // là kiểu dữ liệu của đối tượng mới được tạo từ đối tượng Post.Hàm này có
     // thêm một đầu vào là Func<IQueryable<Post>, IQueryable<T>> mapper
     // để ánh xạ các đối tượng Post thành các đối tượng T theo yêu cầu
+
     public async Task<IPagedList<T>> GetPagedPostQueryAsync<T>(
             PostQuery pq,
             Func<IQueryable<Post>, IQueryable<T>> mapper,
@@ -692,4 +755,91 @@ public class BlogRepository : IBlogRepository
     }
     #endregion
 
+    #region Comment
+
+    // Tìm 1 bình luận theo mã số
+    public async Task<Comment> GetCommentByIDAsync(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Comment>()
+                    .Where(x => x.Id == id)
+                    .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    // Thêm hoặc cập nhật một bình luận
+    public async Task<Comment> CreateOrUpdateCommentAsync(
+        Comment comment, CancellationToken cancellationToken = default)
+    {
+        if (comment.Id > 0)
+        {
+            _context.Set<Comment>().Update(comment);
+        }
+        else
+        {
+            _context.Set<Comment>().Add(comment);
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return comment;
+    }
+
+    public async Task<IPagedList<Comment>> GetPagedCommentAsync(
+        int pageNumber = 1,
+        int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var commentQuery = _context.Set<Comment>();
+           
+        return await commentQuery.ToPagedListAsync(
+            pageNumber, pageSize,
+            nameof(Comment.Name), "DESC",
+            cancellationToken);
+    }
+
+    public async Task<bool> DeleteCommentByIdAsync(
+    int commentId,
+    CancellationToken cancellationToken = default)
+    {
+        var comment = await _context.Set<Comment>().FindAsync(commentId);
+        if (comment is null) return false;
+        _context.Set<Comment>().Remove(comment);
+        var rowsCount = await _context.SaveChangesAsync(cancellationToken);
+        return rowsCount > 0;
+    }
+
+    public async Task<bool> ToggleApprovedFlagAsync(
+      int commentId,
+      CancellationToken cancellationToken = default)
+    {
+        var comment = await _context.Set<Comment>().FindAsync(commentId);
+        if (comment is null) return false;
+        comment.IsApproved = !comment.IsApproved;
+        await _context.SaveChangesAsync(cancellationToken);
+        return comment.IsApproved;
+    }
+
+    public async Task<bool> IsCommentExistedAsync(
+   int commentId,
+   string slug,
+   CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Comment>()
+            .AnyAsync(x => x.Id != commentId && x.Description == slug, cancellationToken);
+    }
+    #endregion
+
+    public async Task<IPagedList<Subscriber>> GetPagedSubscriberAsync(
+        int pageNumber = 1,
+        int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var subQuery = _context.Set<Subscriber>();
+
+        return await subQuery.ToPagedListAsync(
+            pageNumber, pageSize,
+            nameof(Subscriber.Email), "DESC",
+            cancellationToken);
+    }
 }

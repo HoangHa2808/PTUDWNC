@@ -1,34 +1,49 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width-device-width, initial-scale=1.0" />
-	<title>@ViewData["PageTitle"] - Tips & Tricks Blog</title>
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-	<link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
-	<link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width-device-width, initial-scale=1.0" />
+    <title>@ViewData["PageTitle"] - Tips & Tricks Blog</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
 
-	@await RenderSectionAsync("styles", required: false)
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="shortcut icon" href="~/images/icons/icon-48x48.png" />
+
+    <link rel="canonical" href="https://demo-basic.adminkit.io/" />
+
+    <link rel="stylesheet" href="~/css/app.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap">
+    @*
+    <link rel="stylesheet" href="~/fonts/icomoon/style.css">
+    <link rel="stylesheet" href="~/fonts/flaticon/font/flaticon.css">*@
+    <link rel="stylesheet" href="~/fonts/fontawesome/css/all.css">
+
+    @await RenderSectionAsync("styles", required: false)
 </head>
 <body>
-	<!-- Thanh tiêu đề menu -->
-	<partial name="_NavBar"></partial>
+    <!-- Thanh tiêu đề menu -->
+    <partial name="_NavBar"></partial>
 
-	<div class="container-fluid">
-		<!-- Phần nội dung chính-->
-		@RenderBody()
-	</div>
+    <main class="content">
+        <div class="container-fluid p-0">
+            <div class="container-fluid">
+                <!-- Phần nội dung chính-->
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+    <footer class="border-top footer text-muted">
+        <div class="container-fluid text-center">
+            &copy; 2023 - Tips & Tricks Blog
+        </div>
+    </footer>
 
-	<footer class="border-top footer text-muted">
-		<div class="container-fluid text-center">
-			&copy; 2023 - Tips & Tricks Blog
-		</div>
-	</footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/main.js" asp-append-version="true"></script>
 
-	<script src="~/lib/jquery/dist/jquery.min.js"></script>
-	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="~/js/main.js" asp-append-version="true"></script>
-
-	@await RenderSectionAsync("scripts", required: false)
+    @await RenderSectionAsync("scripts", required: false)
 </body>
 </html>

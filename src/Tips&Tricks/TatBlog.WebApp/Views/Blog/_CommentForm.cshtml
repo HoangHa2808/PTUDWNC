@@ -1,0 +1,22 @@
+﻿@model int
+
+<h5>Gửi bình luận</h5>
+
+<form method="post">
+    <div class="mb-3">
+        <div class="d-flex justify-content-between">
+            <label for="name" class="form-label">Tên</label>
+            <span class="text-secondary fst-italic fs-6">(Bắt buộc)</span>
+        </div>
+        <input type="text" name="name" class="form-control" id="name" required>
+    </div>
+    <div class="mb-3">
+        <div class="d-flex justify-content-between">
+            <label for="content" class="form-label">Nội dung</label>
+            <span class="text-secondary fst-italic fs-6">(Bắt buộc)</span>
+        </div>
+        <textarea class="form-control" name="description" id="content" rows="4" required></textarea>
+    </div>
+    <input type="hidden" name="postId" value=@Model />
+    <button type="submit" class="btn btn-primary mt-3 px-5 py-2">Gửi</button>
+</form>

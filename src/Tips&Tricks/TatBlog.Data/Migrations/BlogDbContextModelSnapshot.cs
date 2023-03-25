@@ -228,7 +228,7 @@ namespace TatBlog.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("Reason")
+                    b.Property<string>("Reasons")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -238,12 +238,15 @@ namespace TatBlog.Data.Migrations
                     b.Property<DateTime>("SubscribedDate")
                         .HasColumnType("datetime");
 
+                    b.Property<int>("UnsubscribeState")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UnsubscribedDate")
                         .HasColumnType("datetime");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subscribers", (string)null);
+                    b.ToTable("Subscriber", (string)null);
                 });
 
             modelBuilder.Entity("TatBlog.Core.Entities.Tag", b =>

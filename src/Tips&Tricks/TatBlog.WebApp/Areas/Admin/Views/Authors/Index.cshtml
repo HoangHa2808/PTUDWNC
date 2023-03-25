@@ -1,17 +1,12 @@
-﻿@*@model TatBlog.WebApp.Areas.Admin.Models.CategoryFilterModel*@
-@model IPagedList<AuthorItem>
+﻿@model IPagedList<AuthorItem>
 @{
     ViewData["PageTitle"] = "Danh sách tác giả";
-    //var categoriesList = ViewBag.CategoriesList as IPagedList<CategoryItem>;
     var authorsList = Model;
 }
 
 <h1>
     Danh sách tác giả
 </h1>
-
-<!-- Hiển thị Form để tìm bài viết -->
-@*<partial name="_CategoryFilterPane" model="@Model" />*@
 
 
 @if (authorsList != null && authorsList.Count > 0)
@@ -20,12 +15,11 @@
         <thead>
             <tr>
                 <th>Tên tác giả</th>
-                <th>Email</th>
-                <th>Số bài viết<th>
+                <th>Số bài viết</th>
                 <th>Slug</th>
                 <th>Ngày viết bài</th>
-                <th>Chú thích<th>
-                <th>Chỉnh sửa<th>
+                @*<th>Chú thích</th>*@
+                <th>Chỉnh sửa</th>
             </tr>
         </thead>
 
@@ -41,11 +35,12 @@
                            class="text-bold">
                             @author.FullName
                         </a>
-
                         <p class="text-bold">
                             @author.Email
-                            @author.PostCount
                         </p>
+                    </td>
+                    <td>
+                        @author.PostCount
                     </td>
                     <td>
                         @author.UrlSlug
@@ -54,16 +49,19 @@
                         @author.JoinedDate
                     </td>
                     <td>
-                        @author.Notes
-                    </td>
-                    <td>
+                        <a asp-area="Admin"
+                           asp-controller="Authors"
+                           asp-action="Edit"
+                           class="btn btn-sm">
+                            <i class="fa fa-pen" style="color: #3b5581"> Thêm</i>
+                        </a>
                         <a asp-area="Admin"
                            asp-controller="Authors"
                            asp-action="Delete"
                            asp-route-id="@author.Id"
                            class="btn btn-sm"
                            onclick="return confirm('Bạn có muốn xoá không?')">
-                            <i class="fa fa-trash"></i>
+                            <i class="fa fa-trash"> Xoá</i>
                         </a>
                     </td>
                 </tr>

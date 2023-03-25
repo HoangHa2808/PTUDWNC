@@ -58,7 +58,10 @@ namespace TatBlog.Services.Authors
 
         //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
         //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
-        public async Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(IPagingParams pagingParams, CancellationToken cancellationToken = default)
+        public async Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(
+            int pageNumber = 1,
+            int pageSize = 10,
+            CancellationToken cancellationToken = default)
         {
             var authorQuery = _context.Set<Author>()
                 .Select(x => new AuthorItem()
@@ -72,11 +75,40 @@ namespace TatBlog.Services.Authors
                     Notes = x.Notes
                 });
             return await authorQuery
-                .ToPagedListAsync(pagingParams, cancellationToken);
+                .ToPagedListAsync(pageNumber, pageSize,
+            nameof(Author.FullName), "DESC", cancellationToken);
+        }
+
+        // Xoá 1 tác giả theo mã số
+        public async Task<bool> DeleteAuthorByIdAsync(
+         int authorId,
+         CancellationToken cancellationToken = default)
+        {
+            var author = await _context.Set<Author>().FindAsync(authorId);
+            if (author is null) return false;
+            _context.Set<Author>().Remove(author);
+            var rowsCount = await _context.SaveChangesAsync(cancellationToken);
+            return rowsCount > 0;
+        }
+
+        public async Task<Author> CreateOrUpdateAuthorAsync(
+        Author author, CancellationToken cancellationToken = default)
+        {
+            if (author.Id > 0)
+            {
+                _context.Set<Author>().Update(author);
+            }
+            else
+            {
+                _context.Set<Author>().Add(author);
+            }
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return author;
         }
 
         //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả
-        public async Task AddOrUpdateAuthorAsync(
+        public async Task<Author> AddOrUpdateAuthorAsync(
              Author author,
              CancellationToken cancellationToken = default)
         {
@@ -101,6 +133,7 @@ namespace TatBlog.Services.Authors
                 _context.Authors.Add(author);
                 _context.SaveChanges();
             }
+            return author;
         }
 
         public async Task<bool> IsAuthorSlugExistedAsync(

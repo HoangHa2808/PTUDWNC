@@ -10,7 +10,7 @@
       asp-controller="Categories"
       asp-action="Edit"
       enctype="multipart/form-data"
-      method="category">
+      method="post">
     <div asp-validation-summary="ModelOnly"></div>
     <input type="hidden" asp-for="Id" />
 
@@ -50,43 +50,6 @@
         </div>
     </div>
 
-    <div class="row mb-3">
-        <label asp-for="AuthorId"
-               class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select class="form-control"
-                    asp-for="AuthorId" asp-items="Model.AuthorList">
-                <option value="">-- Chọn tác giả --</option>
-            </select>
-            <span asp-validation-for="AuthorId"
-                  class="text-danger"></span>
-        </div>
-    </div>
-
-  @*  <div class="row mb-3">
-        <label asp-for="CategoryId"
-               class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select class="form-control"
-                    asp-for="CategoryId" asp-items="Model.CategoryList">
-                <option value="">-- Chọn tác giả --</option>
-            </select>
-            <span asp-validation-for="CategoryId"
-                  class="text-danger"></span>
-        </div>
-    </div>*@
-
-    <div class="row mb-3">
-        <label asp-for="SelectedTags"
-               class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <input type="text"
-                   class="form-control"
-                   asp-for="SelectedTags">
-            <span asp-validation-for="SelectedTags"
-                  class="text-danger"></span>
-        </div>
-    </div>
 
     <div class="row mb-3">
         <div class="col-sm-10 offset-sm-2">
@@ -116,14 +79,14 @@
 </form>
 
 @section scripts
-{
+    {
     <partial name="_ValidationScriptsPartial" />
 
     <script src="~/lib/speakingurl/speakingurl.min.js"></script>
 
     <script>
-        $(function (){
-            $('#Title').change(function(){
+        $(function () {
+            $('#Title').change(function () {
                 var slug = getSlug(this.value);
                 $('#UrlSlug').val(slug).trigger('blur');
             });

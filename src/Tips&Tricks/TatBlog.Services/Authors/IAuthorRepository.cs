@@ -24,17 +24,27 @@ namespace TatBlog.Services.Authors
         //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
         //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
         Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(
-            IPagingParams pagingParams,
+            int pageNumber = 1,
+            int pageSize = 10,
             CancellationToken cancellationToken = default);
 
+        // Xoá 1 tác giả theo mã số
+        Task<bool> DeleteAuthorByIdAsync(
+        int authorId,
+        CancellationToken cancellationToken = default);
+
         //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả.
-        Task AddOrUpdateAuthorAsync(
+        Task<Author> AddOrUpdateAuthorAsync(
              Author author,
              CancellationToken cancellationToken = default);
         Task<bool> IsAuthorSlugExistedAsync(
             int id,
             string slug,
             CancellationToken cancellationToken = default);
+
+        Task<Author> CreateOrUpdateAuthorAsync(
+        Author author, CancellationToken cancellationToken = default);
+
         //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.
         Task<IList<AuthorItem>> ListAuthorAsync(int N, CancellationToken cancellationToken = default);
         #endregion

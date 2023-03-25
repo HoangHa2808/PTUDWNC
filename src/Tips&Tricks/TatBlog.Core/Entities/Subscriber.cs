@@ -5,22 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 using TatBlog.Core.Contracts;
 
-namespace TatBlog.Core.Entities
+namespace TatBlog.Core.Entities;
+
+public enum State
 {
-    public enum SubscribeState
-    {
-        Subscribe,
-        Unsubscribe,
-        Banned
-    }
-    public class Subscriber : IEntity
-    {
-        public int Id { get; set; }
-        public string Email { get; set; }
-        public DateTime SubscribedDate { get; set; }
-        public DateTime? UnsubscribedDate { get; set; }
-        public SubscribeState SubscribeState { get; set; }
-        public string Reason { get; set; }
-        public string Notes { get; set; }
-    }
+    Subscribe,
+    Unsubscribe,
+    Block
+}
+public class Subscriber
+{
+    public int Id { get; set; }
+    public string Email { get; set; }
+    public DateTime SubscribedDate { get; set; }
+    public DateTime? UnsubscribedDate { get; set; }
+    public State SubscribeState { get; set; }
+    public State UnsubscribeState { get; set; }
+    public string Reasons { get; set; }
+    public string Notes { get; set; }
 }
