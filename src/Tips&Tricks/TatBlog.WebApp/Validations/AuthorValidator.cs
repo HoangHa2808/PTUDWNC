@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using TatBlog.Services.Authors;
 using TatBlog.Services.Blogs;
 using TatBlog.WebApp.Areas.Admin.Models;
 
@@ -36,7 +35,7 @@ namespace TatBlog.WebApp.Validations
                     !await authorRepository.IsAuthorSlugExistedAsync(
                         authorModel.Id, slug, cancellationToken))
                 .WithMessage("Slug '{PropertyValue}' đã được sử dụng");
-            
+
             When(x => x.Id <= 0, () =>
             {
                 RuleFor(x => x.ImageFile)
@@ -50,6 +49,7 @@ namespace TatBlog.WebApp.Validations
                .WithMessage("Bạn phải chọn hình ảnh cho bài viết");
        });
         }
+
         // Kiểm tra xem bài viết đã có hình ảnh chưa.
         // Nếu chưa có, bắt buộc người dùng phải chọn file.
         private async Task<bool> SetImageIfNotExist(

@@ -3,7 +3,6 @@ using FluentValidation.AspNetCore;
 using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using TatBlog.Core.Entities;
-using TatBlog.Services.Authors;
 using TatBlog.Services.Blogs;
 using TatBlog.Services.Media;
 using TatBlog.WebApp.Areas.Admin.Models;
@@ -85,7 +84,7 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             {
                 _mapper.Map(model, tag);
             }
-            
+
             await _blogRepository.CreateOrUpdateTagAsync(
                 tag);
             return RedirectToAction(nameof(Index));

@@ -6,7 +6,6 @@ using System.Net;
 using TatBlog.Data.Contexts;
 using TatBlog.Data.Seeders;
 using TatBlog.Services.Blogs;
-using TatBlog.Services.Authors;
 using TatBlog.WebApp.Extensions;
 using TatBlog.WebApp.Mapsters;
 using TatBlog.WebApp.Validations;
@@ -15,7 +14,7 @@ namespace TatBlog.WinApp
 {
     public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             {

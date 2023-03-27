@@ -27,6 +27,7 @@ public class SubscriberRepository : ISubscriberRepository
             .Where(s => s.Id == id)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
     public async Task<Subscriber> GetSubscriberByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await _context.Set<Subscriber>()
@@ -52,6 +53,19 @@ public class SubscriberRepository : ISubscriberRepository
             .AnyAsync(s => s.Email.Equals(email), cancellationToken);
     }
 
+    public async Task<IPagedList<Subscriber>> GetPagedSubscriberAsync(
+        int pageNumber = 1,
+        int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var subQuery = _context.Set<Subscriber>();
+
+        return await subQuery.ToPagedListAsync(
+            pageNumber, pageSize,
+            nameof(Subscriber.Email), "DESC",
+            cancellationToken);
+    }
+
     //public async Task<IList<Subscriber>> GetSubscribersAsync(
     //    CancellationToken cancellationToken = default)
     //{
@@ -69,7 +83,6 @@ public class SubscriberRepository : ISubscriberRepository
             {
                 Email = email,
                 SubscribedDate = DateTime.Now,
-
             };
             _context.Subscribers.Add(s);
             return await _context.SaveChangesAsync(cancellationToken) > 0;
@@ -111,4 +124,22 @@ public class SubscriberRepository : ISubscriberRepository
              .ExecuteDeleteAsync(cancellationToken) > 0;
     }
 
+    #region Dashboard
+
+    // Số lượng người theo dõi, số lượng người mới theo dõi đăng ký(lấy số liệu trong ngày)
+    public async Task<int> CountSubAsync(
+       CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Subscriber>()
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> CountSubscriberStateAsync(
+       CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Subscriber>()
+                .CountAsync(x => x.SubscribedDate.CompareTo(DateTime.Now) == 0, cancellationToken);
+    }
+
+    #endregion Dashboard
 }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using TatBlog.Services.Authors;
+using TatBlog.Services.Blogs;
 
 namespace TatBlog.WebApp.Components;
 

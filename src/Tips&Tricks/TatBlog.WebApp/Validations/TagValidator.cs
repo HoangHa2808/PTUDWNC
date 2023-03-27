@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using TatBlog.Services.Authors;
 using TatBlog.Services.Blogs;
 using TatBlog.WebApp.Areas.Admin.Models;
 
@@ -36,8 +35,6 @@ namespace TatBlog.WebApp.Validations
                     !await blogRepository.IsTagSlugExistedAsync(
                         tagModel.Id, slug, cancellationToken))
                 .WithMessage("Slug '{PropertyValue}' đã được sử dụng");
-
         }
-
     }
 }

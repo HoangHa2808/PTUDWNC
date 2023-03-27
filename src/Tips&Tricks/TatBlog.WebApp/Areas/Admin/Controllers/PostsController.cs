@@ -1,5 +1,4 @@
 ﻿using TatBlog.Services.Blogs;
-using TatBlog.Services.Authors;
 using TatBlog.WebApp.Areas.Admin.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +45,6 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
         {
             _logger.LogInformation("Tạo điều kiện truy vấn");
 
-
             var postQuery = _mapper.Map<PostQuery>(model);
             _logger.LogInformation("Lấy danh sách bài viết từ CSDL");
 
@@ -61,10 +59,11 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
         }
 
         public async Task<IActionResult> Delete(int id = 0)
-        { 
-         await _blogRepository.DeletePostsByIdAsync(id);
+        {
+            await _blogRepository.DeletePostsByIdAsync(id);
             return RedirectToAction(nameof(Index));
         }
+
         public async Task<IActionResult> Toggle(int id = 0)
         {
             await _blogRepository.TogglePuslishedFlagAsync(id);
@@ -104,7 +103,6 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             });
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Edit(
             PostEditModel model)
@@ -113,7 +111,6 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             if (!validationResult.IsValid)
             {
                 validationResult.AddToModelState(ModelState);
-
             }
             if (!ModelState.IsValid)
             {
@@ -193,6 +190,5 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
                 Value = c.Id.ToString()
             });
         }
-
     }
 }

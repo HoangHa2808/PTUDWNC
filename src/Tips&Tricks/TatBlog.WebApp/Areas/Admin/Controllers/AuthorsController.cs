@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
 using TatBlog.Core.Entities;
-using TatBlog.Services.Authors;
 using TatBlog.Services.Blogs;
 using TatBlog.Services.Media;
 using TatBlog.WebApp.Areas.Admin.Models;
@@ -63,7 +62,7 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
 
         public async Task<IActionResult> Delete(int id = 0)
         {
-            await _authorRepository.DeleteAuthorByIdAsync(id);
+            await _authorRepository.DeleteAuthorAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
@@ -107,7 +106,7 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
                     author.ImageUrl = newImagePath;
                 }
             }
-            await _authorRepository.CreateOrUpdateAuthorAsync(
+            await _authorRepository.AddOrUpdateAsync(
                 author);
             return RedirectToAction(nameof(Index));
         }

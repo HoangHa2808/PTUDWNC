@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TatBlog.Core.DTO;
 using TatBlog.Core.Entities;
-using TatBlog.Services.Authors;
 using TatBlog.Services.Blogs;
 using TatBlog.Services.Media;
 using TatBlog.WebApp.Areas.Admin.Models;
@@ -42,10 +41,9 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             [FromQuery(Name = "ps")] int pageSize = 10)
         {
             var model = await _blogRepository.GetPagedCategoryAsync(pageNumber, pageSize);
-     
+
             return View(model);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id = 0)
@@ -83,7 +81,6 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             if (!validationResult.IsValid)
             {
                 validationResult.AddToModelState(ModelState);
-
             }
             var category = model.Id > 0
                 ? await _blogRepository.FindCategoryByIDAsync(model.Id)

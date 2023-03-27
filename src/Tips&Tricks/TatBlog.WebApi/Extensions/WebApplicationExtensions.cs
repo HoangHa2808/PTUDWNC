@@ -3,14 +3,12 @@ using NLog.Web;
 using System.Runtime.CompilerServices;
 using TatBlog.Data.Contexts;
 using TatBlog.Data.Seeders;
+using TatBlog.Services.Timing;
 using TatBlog.Services.Blogs;
 using TatBlog.Services.Media;
-using TatBlog.Services.Subscribers;
-using TatBlog.WebApp.Extensions;
-using TatBlog.WebApp.Middlewares;
-using TatBlog.WinApp;
+using TatBlog.WebApi.Extensions;
 
-namespace TatBlog.WebApp.Extensions
+namespace TatBlog.WebApi.Extensions
 {
     public static class WebApplicationExtensions
     {
@@ -24,6 +22,16 @@ namespace TatBlog.WebApp.Extensions
             return builder;
         }
 
+        public static WebApplicationBuilder ConfigureSwaggerOpenApi(
+        this WebApplicationBuilder builder)
+        {
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+            return builder;
+        }
+
+        // Cấu hình việc sử dụng NLog
         public static WebApplicationBuilder ConfigureNLog(
             this WebApplicationBuilder builder)
         {
@@ -37,19 +45,36 @@ namespace TatBlog.WebApp.Extensions
         public static WebApplicationBuilder ConfigureServices(
                this WebApplicationBuilder builder)
         {
+            builder.Services.AddMemoryCache();
             builder.Services.AddDbContext<BlogDbContext>(options =>
             options.UseSqlServer(
                 builder.Configuration.
                 GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddScoped<ITimeProvider, LocalTimeProvider>();
             builder.Services.AddScoped<IMediaManager, LocalFileSystemMediaManager>();
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
             builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-            builder.Services.AddScoped<ISubscriberRepository, SubscriberRepository>();
             builder.Services.AddScoped<IDataSeeder, DataSeeder>();
 
             return builder;
+                    }
+
+        public static WebApplicationBuilder ConfigureCors(
+               this WebApplicationBuilder builder)
+        {
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("TatBlogApp", policyBuilder =>
+                policyBuilder
+                .AllowAnyHeader()
+                .AllowAnyOrigin()
+                .AllowAnyMethod());
+            });
+            return builder;
         }
+
+
 
         //Cấu hình HTTP Request pipeline
         public static WebApplication UseRequestPipeline(
@@ -80,28 +105,26 @@ namespace TatBlog.WebApp.Extensions
             // dể xử lý một HTTP request.
             app.UseRouting();
 
-            app.UseMiddleware<UserActivityMiddleware>();
+            //app.UseMiddleware<UserActivityMiddleware>();
 
             return app;
         }
 
         //Thêm dữ liệu mẫu vào CSDL
-        public static IApplicationBuilder UseDataSeeder(
-            this IApplicationBuilder app)
+        public static WebApplication SetupRequestPipeline(
+            this WebApplication app)
         {
-            using (var scope = app.ApplicationServices.CreateScope())
-                try
-                {
-                    scope.ServiceProvider
-                            .GetRequiredService<IDataSeeder>()
-                    .Initialize();
-                }
-                catch (Exception ex)
-                {
-                    scope.ServiceProvider
-                        .GetRequiredService<ILogger<Program>>()
-                        .LogError(ex, "Could not insert data into database");
-                }
+           if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseStaticFiles();
+            app.UseHttpsRedirection();
+
+            app.UseCors("TatBlogApp");
+
             return app;
         }
     }

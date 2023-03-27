@@ -4,7 +4,6 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TatBlog.Core.Entities;
-using TatBlog.Services.Authors;
 using TatBlog.Services.Blogs;
 using TatBlog.Services.Media;
 using TatBlog.WebApp.Areas.Admin.Models;
@@ -12,7 +11,7 @@ using TatBlog.WebApp.Areas.Admin.Models;
 namespace TatBlog.WebApp.Areas.Admin.Controllers
 {
     public class CommentsController : Controller
-     {
+    {
         private readonly ILogger<PostsController> _logger;
         private readonly IValidator<CommentEditModel> _commentValidator;
         private readonly IBlogRepository _blogRepository;
@@ -78,7 +77,6 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             if (!validationResult.IsValid)
             {
                 validationResult.AddToModelState(ModelState);
-
             }
             var comment = model.Id > 0
                 ? await _blogRepository.GetCommentByIDAsync(model.Id)
@@ -109,6 +107,5 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
                 ? Json($"Slug '{slug}' đã được sử dụng")
                 : Json(true);
         }
-
     }
 }
