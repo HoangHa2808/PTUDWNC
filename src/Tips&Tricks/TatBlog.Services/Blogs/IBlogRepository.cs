@@ -52,6 +52,8 @@ namespace TatBlog.Services.Blogs
 
         #region Phần C.1. Thực hành
 
+        #region Tag
+
         // 1.a. Tìm một thẻ (Tag) theo tên định danh (slug)
         public Task<Tag> FindTagWithSlugAsync(
             string slug,
@@ -68,16 +70,39 @@ namespace TatBlog.Services.Blogs
         public Task DeleteTagWithIdAsync(int id, CancellationToken cancellationToken = default);
 
         Task<bool> DeleteTagByIdAsync(
-     int tagId,
-     CancellationToken cancellationToken = default);
+             int tagId,
+             CancellationToken cancellationToken = default);
 
         Task<Tag> CreateOrUpdateTagAsync(
         Tag tag, CancellationToken cancellationToken = default);
 
         Task<bool> IsTagSlugExistedAsync(
-   int tagId,
-   string slug,
-   CancellationToken cancellationToken = default);
+           int tagId,
+           string slug,
+           CancellationToken cancellationToken = default);
+
+        Task<IPagedList<TagItem>> GetPagedTagAsync(
+          int pageNumber = 1,
+          int pageSize = 10,
+          CancellationToken cancellationToken = default);
+
+        Task<IPagedList<TagItem>> GetPagedTagsAsync(
+          IPagingParams pagingParams,
+          string name = null,
+          CancellationToken cancellationToken = default);
+
+        Task<Tag> GetCachedTagByIdAsync(int tagId);
+
+        Task<Tag> GetCachedTagBySlugAsync(
+        string slug, CancellationToken cancellationToken = default);
+
+        Task<bool> AddOrUpdateTagAsync(
+            Tag tag,
+            CancellationToken cancellationToken = default);
+
+        #endregion Tag
+
+        #region Category
 
         //1.e: Tìm một chuyên mục(Category) theo tên định danh (slug)
         Task<Category> FindCategoryByUrlAsync(string slug, CancellationToken cancellationToken = default);
@@ -89,14 +114,14 @@ namespace TatBlog.Services.Blogs
         Task<Category> CreateOrUpdateCategoryAsync(
         Category category, CancellationToken cancellationToken = default);
 
+        Task<bool> AddOrUpdateCategoryAsync(
+     Category category,
+     CancellationToken cancellationToken = default);
+
         // 1.h: Xóa một chuyên mục theo mã số
         Task<bool> DeleteCategoryByIdAsync(int categoryId, CancellationToken cancellationToken = default);
 
         Task<bool> ToggleShowOnMenuFlagAsync(int categoryId, CancellationToken cancellationToken = default);
-
-        Task<bool> DeletePostsByIdAsync(int postId, CancellationToken cancellationToken = default);
-
-        Task<bool> TogglePuslishedFlagAsync(int postId, CancellationToken cancellationToken = default);
 
         // 1.i: Kiểm tra tên định danh (slug) của
         // một chuyên mục đã tồn tại hay chưa.
@@ -108,6 +133,24 @@ namespace TatBlog.Services.Blogs
          int pageSize = 10,
          CancellationToken cancellationToken = default);
 
+        Task<IPagedList<CategoryItem>> GetPagedCategoriesAsync(
+          IPagingParams pagingParams,
+          string name = null,
+          CancellationToken cancellationToken = default);
+
+        Task<Category> GetCachedCategoryByIdAsync(int categoryId);
+
+        Task<Category> GetCachedCategoryBySlugAsync(
+        string slug, CancellationToken cancellationToken = default);
+
+        #endregion Category
+
+        #region Post
+
+        Task<bool> DeletePostsByIdAsync(int postId, CancellationToken cancellationToken = default);
+
+        Task<bool> TogglePuslishedFlagAsync(int postId, CancellationToken cancellationToken = default);
+
         // 1.k: Đếm số lượng bài viết trong N tháng gần nhất. N là tham số đầu vào.
         // Kết quả là một danh sách các đối tượng chứa các thông tin sau: Năm, Tháng, Số bài viết
         Task<IList<PostItem>> CountPostsMonthAsync(
@@ -116,6 +159,14 @@ namespace TatBlog.Services.Blogs
         Task<Post> GetPostByIdAsync(
         int postId, bool includeDetails = false,
         CancellationToken cancellationToken = default);
+
+        Task<bool> SetImageUrlAsync(
+       int postId, string imageUrl,
+       CancellationToken cancellationToken = default);
+
+        Task<bool> AddOrUpdatePostsAsync(
+          Post post,
+          CancellationToken cancellationToken = default);
 
         // 1.l: Tìm một bài viết theo mã số
         Task<Post> FindPostByIDAsync(int id, CancellationToken cancellationToken = default);
@@ -132,15 +183,10 @@ namespace TatBlog.Services.Blogs
         int id,
         CancellationToken cancellationToken = default);
 
-        Task<IPagedList<TagItem>> GetPagedTagAsync(
-           int pageNumber = 1,
-           int pageSize = 10,
-           CancellationToken cancellationToken = default);
-
         // 1.o: Chuyển đổi trạng thái Published của bài viết
         Task<IList<Post>> GetRandomPostsAsync(
-    int n,
-    CancellationToken cancellationToken = default);
+            int n,
+            CancellationToken cancellationToken = default);
 
         // 1.p: Tạo lớp PostQuery để lưu trữ các điều kiện tìm kiếm bài viết. Chẳng hạn:mã tác giả,
         // mã chuyên mục, tên ký hiệu chuyên mục, năm/tháng đăng bài, từ khóa, …
@@ -196,6 +242,10 @@ namespace TatBlog.Services.Blogs
            Func<IQueryable<Post>, IQueryable<T>> mapper,
            CancellationToken cancellationToken = default);
 
+        Task<Post> GetCachedPostByIdAsync(int postId);
+
+        #endregion Post
+
         #endregion Phần C.1. Thực hành
 
         #region Comment
@@ -208,9 +258,20 @@ namespace TatBlog.Services.Blogs
         // Tìm 1 bình luận theo mã số
         Task<Comment> GetCommentByIDAsync(int id, CancellationToken cancellationToken = default);
 
+        Task<Comment> GetCachedCommentByIdAsync(int commentId);
+
         // 1.g: Thêm hoặc cập nhật một bình luận
         Task<Comment> CreateOrUpdateCommentAsync(
         Comment comment, CancellationToken cancellationToken = default);
+
+        Task<bool> AddOrUpdateCommentAsync(
+            Comment comment,
+            CancellationToken cancellationToken = default);
+
+        Task<IPagedList<Comment>> GetPagedCommentsAsync(
+            IPagingParams pagingParams,
+            string name = null,
+            CancellationToken cancellationToken = default);
 
         Task<bool> DeleteCommentByIdAsync(int commentId,
         CancellationToken cancellationToken = default);

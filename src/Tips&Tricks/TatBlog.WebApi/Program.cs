@@ -22,6 +22,11 @@ var app = builder.Build();
 
     // Configure API endpoints
     app.MapAuthorEndpoints();
+    app.MapCategoryEndpoints();
+    app.MapTagEndpoints();
+    app.MapPostEndpoints();
+    app.MapCommentEndpoints();
+    //app.MapSubscriberEndpoints();
 
     app.Run();
 }

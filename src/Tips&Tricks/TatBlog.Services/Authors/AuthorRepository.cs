@@ -92,9 +92,9 @@ namespace TatBlog.Services.Authors
         }
 
         public async Task<IPagedList<AuthorItem>> GetPagedAuthorsAsync(
-    IPagingParams pagingParams,
-    string name = null,
-    CancellationToken cancellationToken = default)
+            IPagingParams pagingParams,
+            string name = null,
+            CancellationToken cancellationToken = default)
         {
             return await _context.Set<Author>()
                 .AsNoTracking()

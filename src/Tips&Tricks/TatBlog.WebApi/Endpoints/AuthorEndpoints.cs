@@ -38,6 +38,7 @@ namespace TatBlog.WebApi.Endpoints
                 .WithName("GetPostsByAuthorsSlug")
                 .Produces<PaginationResult<PostDTO>>();
 
+            // ListAuthorBest
             routeGroupBuilder.MapGet("/best/{limit:int}", ListAuthorBest)
               .WithName("ListAuthorBest")
               .Produces<AuthorItem>()

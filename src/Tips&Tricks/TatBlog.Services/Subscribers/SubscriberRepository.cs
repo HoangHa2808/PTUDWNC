@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TatBlog.Core.Contracts;
+using TatBlog.Core.DTO;
 using TatBlog.Core.Entities;
 using TatBlog.Data.Contexts;
 using TatBlog.Services.Extensions;
@@ -15,9 +17,12 @@ public class SubscriberRepository : ISubscriberRepository
 {
     private readonly BlogDbContext _context;
 
-    public SubscriberRepository(BlogDbContext context)
+    private readonly IMemoryCache _memoryCache;
+
+    public SubscriberRepository(BlogDbContext context, IMemoryCache memoryCache)
     {
         _context = context;
+        _memoryCache = memoryCache;
     }
 
     // Tìm người theo dõi = ID
@@ -35,6 +40,69 @@ public class SubscriberRepository : ISubscriberRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<Subscriber> GetCachedSubscriberByIdAsync(int subscriberId)
+    {
+        return await _memoryCache.GetOrCreateAsync(
+            $"subscriber.by-id.{subscriberId}",
+            async (entry) =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                return await GetSubscriberByIdAsync(subscriberId);
+            });
+    }
+
+    public async Task<Subscriber> GetCachedSubscriberByEmailAsync(
+        string email, CancellationToken cancellationToken = default)
+    {
+        return await _memoryCache.GetOrCreateAsync(
+            $"subscriber.by-email.{email}",
+            async (entry) =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                return await GetSubscriberByEmailAsync(email, cancellationToken);
+            });
+    }
+
+    public async Task<IPagedList<Subscriber>> GetPagedSubscribersAsync(
+           IPagingParams pagingParams,
+           string name = null,
+           CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Subscriber>()
+            .AsNoTracking()
+            .WhereIf(!string.IsNullOrWhiteSpace(name),
+                x => x.Email.Contains(name))
+            .Select(a => new Subscriber()
+            {
+                Id = a.Id,
+                Email = a.Email,
+                SubscribedDate = a.SubscribedDate,
+                UnsubscribedDate = a.UnsubscribedDate,
+                SubscribeState = a.SubscribeState,
+                UnsubscribeState = a.UnsubscribeState,
+                Reasons = a.Reasons,
+                Notes = a.Notes
+            })
+            .ToPagedListAsync(pagingParams, cancellationToken);
+    }
+
+    public async Task<IPagedList<T>> GetPagedSubscribersAsync<T>(
+       Func<IQueryable<Subscriber>, IQueryable<T>> mapper,
+       IPagingParams pagingParams,
+       string name = null,
+       CancellationToken cancellationToken = default)
+    {
+        var subscriberQuery = _context.Set<Subscriber>().AsNoTracking();
+
+        if (!string.IsNullOrEmpty(name))
+        {
+            subscriberQuery = subscriberQuery.Where(x => x.Email.Contains(name));
+        }
+
+        return await mapper(subscriberQuery)
+            .ToPagedListAsync(pagingParams, cancellationToken);
+    }
+
     public async Task<IPagedList<Subscriber>> SearchSubscribersAsync(IPagingParams pagingParams, string keywords, State subscribeStatus, CancellationToken cancellationToken = default)
     {
         var subscriberR = _context.Set<Subscriber>()
@@ -45,7 +113,17 @@ public class SubscriberRepository : ISubscriberRepository
         return await subscriberR.ToPagedListAsync(pagingParams, cancellationToken);
     }
 
+    public async Task<bool> IsSubscriberExistedEmail(
+        int id,
+           string email,
+           CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Subscriber>()
+            .AnyAsync(s => s.Id != id && s.Email.Equals(email), cancellationToken);
+    }
+
     public async Task<bool> IsExistedEmail(
+
            string email,
            CancellationToken cancellationToken = default)
     {
@@ -59,6 +137,40 @@ public class SubscriberRepository : ISubscriberRepository
         return await _context.Set<Subscriber>()
              .Where(x => x.SubscribeState == State.Subscribe)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Subscriber> CreateOrUpdateSubscriberAsync(
+       Subscriber subscriber, CancellationToken cancellationToken = default)
+    {
+        if (subscriber.Id > 0)
+        {
+            _context.Set<Subscriber>().Update(subscriber);
+        }
+        else
+        {
+            _context.Set<Subscriber>().Add(subscriber);
+        }
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return subscriber;
+    }
+
+    //Câu 2. E : Thêm hoặc cập nhật thông tin một đăng ký
+    public async Task<bool> AddOrUpdateSubscriberAsync(
+         Subscriber subscriber,
+         CancellationToken cancellationToken = default)
+    {
+        if (subscriber.Id > 0)
+        {
+            _context.Subscribers.Update(subscriber);
+            _memoryCache.Remove($"subscriber.by-id.{subscriber.Id}");
+        }
+        else
+        {
+            _context.Subscribers.Add(subscriber);
+        }
+
+        return await _context.SaveChangesAsync(cancellationToken) > 0;
     }
 
     public async Task<bool> SubscribeAsync(string email, CancellationToken cancellationToken = default)
