@@ -5,6 +5,7 @@ using TatBlog.Data.Contexts;
 using TatBlog.Data.Seeders;
 using TatBlog.Services.Authors;
 using TatBlog.Services.Blogs;
+using TatBlog.Services.Subscribers;
 using TatBlog.Services.Media;
 using TatBlog.WebApp.Extensions;
 using TatBlog.WebApp.Middlewares;
@@ -45,10 +46,10 @@ namespace TatBlog.WebApp.Extensions
             builder.Services.AddScoped<IMediaManager, LocalFileSystemMediaManager>();
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
             builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+            builder.Services.AddScoped<ISubscriberRepository, SubscriberRepository>();
             builder.Services.AddScoped<IDataSeeder, DataSeeder>();
 
             return builder;
-
         }
 
         //Cấu hình HTTP Request pipeline

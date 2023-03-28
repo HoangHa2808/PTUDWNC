@@ -13,6 +13,7 @@ public enum State
     Unsubscribe,
     Block
 }
+
 public class Subscriber
 {
     public int Id { get; set; }

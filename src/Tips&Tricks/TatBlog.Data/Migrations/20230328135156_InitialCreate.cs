@@ -46,7 +46,7 @@ namespace TatBlog.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Subscriber",
+                name: "Subscribers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -61,7 +61,7 @@ namespace TatBlog.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Subscriber", x => x.Id);
+                    table.PrimaryKey("PK_Subscribers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -193,7 +193,7 @@ namespace TatBlog.Data.Migrations
                 name: "PostTags");
 
             migrationBuilder.DropTable(
-                name: "Subscriber");
+                name: "Subscribers");
 
             migrationBuilder.DropTable(
                 name: "Posts");
