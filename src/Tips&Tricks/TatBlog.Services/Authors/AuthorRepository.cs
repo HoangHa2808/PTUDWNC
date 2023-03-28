@@ -21,7 +21,15 @@ namespace TatBlog.Services.Authors
             _context = context;
         }
 
+        public async Task<int> CountAuthorAsync(
+       CancellationToken cancellationToken = default)
+        {
+            return await _context.Set<Author>()
+                .CountAsync(cancellationToken);
+        }
+
         #region Phần C.2
+
         //Câu 2. B : Tìm một tác giả theo mã số
         public async Task<Author> GetAuthorByIdAsync(int Id)
         {
@@ -146,7 +154,6 @@ namespace TatBlog.Services.Authors
                 cancellationToken);
         }
 
-
         //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.
         public async Task<IList<AuthorItem>> ListAuthorAsync(
             int N, CancellationToken cancellationToken = default)
@@ -171,7 +178,7 @@ namespace TatBlog.Services.Authors
             //               .Take(N)
             //               .ToListAsync(cancellationToken);
         }
-        #endregion
 
+        #endregion Phần C.2
     }
 }

@@ -10,7 +10,7 @@ namespace TatBlog.Services.Subscribers;
 
 public interface ISubscriberRepository
 {
-    //Task<IList<Subscriber>> GetSubscribersAsync(CancellationToken cancellationToken = default);
+    Task<IList<Subscriber>> GetSubscribersAsync(CancellationToken cancellationToken = default);
 
     // Tìm người theo dõi = ID
     Task<Subscriber> GetSubscriberByIdAsync(int id, CancellationToken cancellationToken = default);
@@ -33,4 +33,18 @@ public interface ISubscriberRepository
     // Xoá 1 người theo dõi
     Task<bool> DeleteSubscriberAsync(int id, CancellationToken cancellationToken = default);
 
+    Task<IPagedList<Subscriber>> GetPagedSubscriberAsync(
+       int pageNumber = 1,
+       int pageSize = 10,
+       CancellationToken cancellationToken = default);
+
+    #region Dashboard
+
+    Task<int> CountSubAsync(
+       CancellationToken cancellationToken = default);
+
+    Task<int> CountSubscriberStateAsync(
+       CancellationToken cancellationToken = default);
+
+    #endregion Dashboard
 }

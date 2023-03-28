@@ -15,7 +15,9 @@ public class BlogRepository : IBlogRepository
     {
         _context = context;
     }
+
     #region Phần B.Hướng dẫn
+
     // Tìm bài viết có tên định danh là 'slug'
     // và được đăng vào tháng 'month' năm 'year'
     public async Task<Post> GetPostAsync(
@@ -119,7 +121,8 @@ public class BlogRepository : IBlogRepository
 
         return await tagQuery.ToPagedListAsync(pagingParams, cancellationToken);
     }
-    #endregion
+
+    #endregion Phần B.Hướng dẫn
 
     //public Task<IList<TagItem>> GetTagsItemsAsync(string slug, CancellationToken cancellationToken = default)
     //{
@@ -140,6 +143,7 @@ public class BlogRepository : IBlogRepository
     //}
 
     #region Phần C.1.Thực hành
+
     // Cau 1.a: Tìm một thẻ(Tag) theo tên định danh(slug)
     public async Task<Tag> FindTagWithSlugAsync(
             string slug,
@@ -242,7 +246,6 @@ public class BlogRepository : IBlogRepository
         return await categoriesQuery.FirstOrDefaultAsync(cancellationToken);
     }
 
-
     //public async Task<Category> GetCategoryByIdAsync(int categoryId)
     //{
     //    return await _context.Set<Category>().FindAsync(categoryId);
@@ -274,6 +277,7 @@ public class BlogRepository : IBlogRepository
 
         return category;
     }
+
     //public async Task AddOrUpdateCategoryAsync(
     //     Category category,
     //        CancellationToken cancellationToken = default)
@@ -321,6 +325,7 @@ public class BlogRepository : IBlogRepository
         await _context.SaveChangesAsync(cancellationToken);
         return category.ShowOnMenu;
     }
+
     //public async Task DeleteCategoryByIdAsync(
     //    int CategoryId,
     //    CancellationToken cancellationToken = default)
@@ -407,7 +412,6 @@ public class BlogRepository : IBlogRepository
             .OrderByDescending(x => x.Year)
             .ThenByDescending(x => x.Month)
             .ToListAsync(cancellationToken);
-
     }
 
     public async Task<Post> GetPostByIdAsync(
@@ -436,7 +440,7 @@ public class BlogRepository : IBlogRepository
                     .FirstOrDefaultAsync(cancellationToken);
     }
 
-     //1.m: Thêm hay cập nhật một bài viết
+    //1.m: Thêm hay cập nhật một bài viết
     public async Task AddOrUpdatePostAsync(
        Post postName,
        CancellationToken cancellationToken = default)
@@ -494,7 +498,6 @@ public class BlogRepository : IBlogRepository
             .GroupBy(x => x.Slug)
             .ToDictionary(g => g.Key, g => g.First().Name);
 
-
         foreach (var kv in validTags)
         {
             if (post.Tags.Any(x => string.Compare(x.UrlSlug, kv.Key, StringComparison.InvariantCultureIgnoreCase) == 0)) continue;
@@ -545,7 +548,7 @@ public class BlogRepository : IBlogRepository
                 Name = x.Name,
                 UrlSlug = x.UrlSlug,
                 Description = x.Description,
-                    PostCount =x.Posts.Count
+                PostCount = x.Posts.Count
             });
         return await tagQuery
             .ToPagedListAsync(pageNumber, pageSize,
@@ -575,9 +578,8 @@ public class BlogRepository : IBlogRepository
             .ToListAsync();
     }
 
-
     // 1.p: Tạo lớp PostQuery để lưu trữ các điều kiện tìm kiếm bài viết. Chẳng hạn:mã tác giả,
-    // mã chuyên mục, tên ký hiệu chuyên mục, năm/tháng đăng bài, từ khóa, … 
+    // mã chuyên mục, tên ký hiệu chuyên mục, năm/tháng đăng bài, từ khóa, …
     public async Task<IList<Post>> GetAllPostsByPostQuery(
         PostQuery pquery, CancellationToken cancellationToken = default)
     {
@@ -595,7 +597,6 @@ public class BlogRepository : IBlogRepository
             .WhereIf(!string.IsNullOrWhiteSpace(pquery.TagSlug), p => p.Tags.Any(x => x.UrlSlug ==
             pquery.TagSlug))
             .ToListAsync(cancellationToken);
-
     }
 
     // 1.q: Tìm tất cả bài viết thỏa mãn điều kiện tìm kiếm được cho trong đối tượng
@@ -669,7 +670,6 @@ public class BlogRepository : IBlogRepository
                     p.Description.Contains(pq.Keyword) ||
                     p.Category.Name.Contains(pq.Keyword) ||
                     p.Tags.Any(t => t.Name.Contains(pq.Keyword)));
-
     }
 
     public async Task<IPagedList<Post>> GetPagedPostAsync(
@@ -689,7 +689,7 @@ public class BlogRepository : IBlogRepository
     //        PostQuery pq,
     //        IPagingParams pagingParams,
     //        CancellationToken cancellationToken = default)
-    //{ 
+    //{
     //    var query = _context.Set<Post>()
     //        .Include(c => c.Category)
     //        .Include(t => t.Tags)
@@ -753,7 +753,8 @@ public class BlogRepository : IBlogRepository
     {
         throw new NotImplementedException();
     }
-    #endregion
+
+    #endregion Phần C.1.Thực hành
 
     #region Comment
 
@@ -791,7 +792,7 @@ public class BlogRepository : IBlogRepository
         CancellationToken cancellationToken = default)
     {
         var commentQuery = _context.Set<Comment>();
-           
+
         return await commentQuery.ToPagedListAsync(
             pageNumber, pageSize,
             nameof(Comment.Name), "DESC",
@@ -828,18 +829,56 @@ public class BlogRepository : IBlogRepository
         return await _context.Set<Comment>()
             .AnyAsync(x => x.Id != commentId && x.Description == slug, cancellationToken);
     }
-    #endregion
 
-    public async Task<IPagedList<Subscriber>> GetPagedSubscriberAsync(
-        int pageNumber = 1,
-        int pageSize = 10,
+    #endregion Comment
+
+    #region Dashboard
+
+    //  Tổng số bài viết, số bài viết chưa xuất bản,
+    //số lượng chủ đề, số lượng tác giả, số lượng bình luận đang chờ phê duyệt
+
+    public async Task<int> CountPostAsync(
         CancellationToken cancellationToken = default)
     {
-        var subQuery = _context.Set<Subscriber>();
-
-        return await subQuery.ToPagedListAsync(
-            pageNumber, pageSize,
-            nameof(Subscriber.Email), "DESC",
-            cancellationToken);
+        return await _context.Set<Post>()
+            .CountAsync(cancellationToken);
     }
+
+    public async Task<int> CountUnPublicPostAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Post>()
+            .CountAsync(x => !x.Published, cancellationToken);
+    }
+
+    public async Task<int> CountCategoryAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Category>()
+            .CountAsync(cancellationToken);
+    }
+
+    public async Task<int> CountCommentAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Comment>()
+            .CountAsync(x => !x.IsApproved, cancellationToken);
+    }
+
+    // Số lượng người theo dõi, số lượng người mới theo dõi đăng ký(lấy số liệu trong ngày)
+    //public async Task<int> CountSubAsync(
+    //   CancellationToken cancellationToken = default)
+    //{
+    //    return await _context.Set<Subscriber>()
+    //        .CountAsync(cancellationToken);
+    //}
+
+    //public async Task<int> CountSubscriberStateAsync(
+    //   CancellationToken cancellationToken = default)
+    //{
+    //    return await _context.Set<Subscriber>()
+    //            .CountAsync(x => x.SubscribedDate.CompareTo(DateTime.Now) == 0, cancellationToken);
+    //}
+
+    #endregion Dashboard
 }

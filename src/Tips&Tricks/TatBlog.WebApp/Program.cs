@@ -10,12 +10,13 @@ using TatBlog.Services.Authors;
 using TatBlog.WebApp.Extensions;
 using TatBlog.WebApp.Mapsters;
 using TatBlog.WebApp.Validations;
+using TatBlog.Services.Subscribers;
 
 namespace TatBlog.WinApp
 {
     public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             {
@@ -29,6 +30,7 @@ namespace TatBlog.WinApp
 
                 builder.Services.AddScoped<IBlogRepository, BlogRepository>();
                 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+                builder.Services.AddScoped<ISubscriberRepository, SubscriberRepository>();
                 builder.Services.AddScoped<IDataSeeder, DataSeeder>();
 
                 builder.ConfigureMvc()

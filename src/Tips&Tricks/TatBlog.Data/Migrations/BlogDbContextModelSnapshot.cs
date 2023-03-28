@@ -246,7 +246,7 @@ namespace TatBlog.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subscriber", (string)null);
+                    b.ToTable("Subscribers", (string)null);
                 });
 
             modelBuilder.Entity("TatBlog.Core.Entities.Tag", b =>

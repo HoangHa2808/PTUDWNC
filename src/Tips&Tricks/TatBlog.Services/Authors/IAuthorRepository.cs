@@ -11,14 +11,18 @@ namespace TatBlog.Services.Authors
 {
     public interface IAuthorRepository
     {
+        Task<int> CountAuthorAsync(
+      CancellationToken cancellationToken = default);
+
         #region Phần C.2
-        //Câu 2. A : Tạo interface IAuthorRepository và lớp AuthorRepository. 
+
+        //Câu 2. A : Tạo interface IAuthorRepository và lớp AuthorRepository.
         //Câu 2. B : Tìm một tác giả theo mã số
         Task<Author> GetAuthorByIdAsync(int Id);
 
         Task<IList<AuthorItem>> GetAuthorsAsync(CancellationToken cancellationToken = default);
 
-        //Câu 2. C : Tìm một tác giả theo tên định danh (slug). 
+        //Câu 2. C : Tìm một tác giả theo tên định danh (slug).
         Task<Author> GetAuthorBySlugAsync(string Slug, CancellationToken cancellationToken = default);
 
         //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
@@ -37,6 +41,7 @@ namespace TatBlog.Services.Authors
         Task<Author> AddOrUpdateAuthorAsync(
              Author author,
              CancellationToken cancellationToken = default);
+
         Task<bool> IsAuthorSlugExistedAsync(
             int id,
             string slug,
@@ -47,6 +52,7 @@ namespace TatBlog.Services.Authors
 
         //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.
         Task<IList<AuthorItem>> ListAuthorAsync(int N, CancellationToken cancellationToken = default);
-        #endregion
+
+        #endregion Phần C.2
     }
 }

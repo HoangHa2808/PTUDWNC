@@ -12,7 +12,7 @@ using TatBlog.Data.Contexts;
 namespace TatBlog.Data.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20230324172532_InitialCreate")]
+    [Migration("20230328135156_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -249,7 +249,7 @@ namespace TatBlog.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subscriber", (string)null);
+                    b.ToTable("Subscribers", (string)null);
                 });
 
             modelBuilder.Entity("TatBlog.Core.Entities.Tag", b =>
