@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,15 @@ namespace TatBlog.Services.Authors
     public class AuthorRepository : IAuthorRepository
     {
         private readonly BlogDbContext _context;
+        private readonly IMemoryCache _memoryCache;
 
-        public AuthorRepository(BlogDbContext context)
+        public AuthorRepository(BlogDbContext context, IMemoryCache memoryCache)
         {
             _context = context;
+            _memoryCache = memoryCache;
         }
 
+        // Đếm số lượng tác giả
         public async Task<int> CountAuthorAsync(
        CancellationToken cancellationToken = default)
         {
@@ -64,6 +68,51 @@ namespace TatBlog.Services.Authors
             //.FirstOrDefaultAsync(t => t.UrlSlug == Slug,cancellationToken);
         }
 
+        public async Task<Author> GetCachedAuthorByIdAsync(int authorId)
+        {
+            return await _memoryCache.GetOrCreateAsync(
+                $"author.by-id.{authorId}",
+                async (entry) =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                    return await GetAuthorByIdAsync(authorId);
+                });
+        }
+
+        public async Task<Author> GetCachedAuthorBySlugAsync(
+            string slug, CancellationToken cancellationToken = default)
+        {
+            return await _memoryCache.GetOrCreateAsync(
+                $"author.by-slug.{slug}",
+                async (entry) =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                    return await GetAuthorBySlugAsync(slug, cancellationToken);
+                });
+        }
+
+        public async Task<IPagedList<AuthorItem>> GetPagedAuthorsAsync(
+    IPagingParams pagingParams,
+    string name = null,
+    CancellationToken cancellationToken = default)
+        {
+            return await _context.Set<Author>()
+                .AsNoTracking()
+                .WhereIf(!string.IsNullOrWhiteSpace(name),
+                    x => x.FullName.Contains(name))
+                .Select(a => new AuthorItem()
+                {
+                    Id = a.Id,
+                    FullName = a.FullName,
+                    Email = a.Email,
+                    JoinedDate = a.JoinedDate,
+                    ImageUrl = a.ImageUrl,
+                    UrlSlug = a.UrlSlug,
+                    PostCount = a.Posts.Count(p => p.Published)
+                })
+                .ToPagedListAsync(pagingParams, cancellationToken);
+        }
+
         //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
         //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
         public async Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(
@@ -87,16 +136,31 @@ namespace TatBlog.Services.Authors
             nameof(Author.FullName), "DESC", cancellationToken);
         }
 
+        public async Task<IPagedList<T>> GetPagedAuthorsAsync<T>(
+        Func<IQueryable<Author>, IQueryable<T>> mapper,
+        IPagingParams pagingParams,
+        string name = null,
+        CancellationToken cancellationToken = default)
+        {
+            var authorQuery = _context.Set<Author>().AsNoTracking();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                authorQuery = authorQuery.Where(x => x.FullName.Contains(name));
+            }
+
+            return await mapper(authorQuery)
+                .ToPagedListAsync(pagingParams, cancellationToken);
+        }
+
         // Xoá 1 tác giả theo mã số
         public async Task<bool> DeleteAuthorByIdAsync(
          int authorId,
          CancellationToken cancellationToken = default)
         {
-            var author = await _context.Set<Author>().FindAsync(authorId);
-            if (author is null) return false;
-            _context.Set<Author>().Remove(author);
-            var rowsCount = await _context.SaveChangesAsync(cancellationToken);
-            return rowsCount > 0;
+            return await _context.Authors
+           .Where(x => x.Id == authorId)
+           .ExecuteDeleteAsync(cancellationToken) > 0;
         }
 
         public async Task<Author> CreateOrUpdateAuthorAsync(
@@ -116,32 +180,21 @@ namespace TatBlog.Services.Authors
         }
 
         //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả
-        public async Task<Author> AddOrUpdateAuthorAsync(
+        public async Task<bool> AddOrUpdateAuthorAsync(
              Author author,
              CancellationToken cancellationToken = default)
         {
-            if (IsAuthorSlugExistedAsync(author.Id, author.UrlSlug).Result)
-                Console.WriteLine("Error: Exsited Slug");
-            else
-
-                if (author.Id > 0)
-                await _context.Set<Author>()
-                .Where(a => a.Id == author.Id)
-                .ExecuteUpdateAsync(a => a
-                    .SetProperty(x => x.FullName, x => author.FullName)
-                    .SetProperty(x => x.UrlSlug, x => author.UrlSlug)
-                    .SetProperty(x => x.ImageUrl, x => author.ImageUrl)
-                    .SetProperty(x => x.JoinedDate, author.JoinedDate)
-                    .SetProperty(x => x.Email, author.Email)
-                    .SetProperty(x => x.Notes, author.Notes)
-                    .SetProperty(x => x.Posts, author.Posts),
-                    cancellationToken);
+            if (author.Id > 0)
+            {
+                _context.Authors.Update(author);
+                _memoryCache.Remove($"author.by-id.{author.Id}");
+            }
             else
             {
                 _context.Authors.Add(author);
-                _context.SaveChanges();
             }
-            return author;
+
+            return await _context.SaveChangesAsync(cancellationToken) > 0;
         }
 
         public async Task<bool> IsAuthorSlugExistedAsync(
@@ -152,6 +205,17 @@ namespace TatBlog.Services.Authors
             return await _context.Set<Author>()
                 .AnyAsync(x => x.Id != id && x.UrlSlug == slug,
                 cancellationToken);
+        }
+
+        public async Task<bool> SetImageUrlAsync(
+       int authorId, string imageUrl,
+       CancellationToken cancellationToken = default)
+        {
+            return await _context.Authors
+                .Where(x => x.Id == authorId)
+                .ExecuteUpdateAsync(x =>
+                    x.SetProperty(a => a.ImageUrl, a => imageUrl),
+                    cancellationToken) > 0;
         }
 
         //Câu 2. F : Tìm danh sách N tác giả có nhiều bài viết nhất. N là tham số đầu vào.

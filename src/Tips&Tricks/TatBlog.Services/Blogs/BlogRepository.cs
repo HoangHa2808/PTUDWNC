@@ -672,6 +672,17 @@ public class BlogRepository : IBlogRepository
                     p.Tags.Any(t => t.Name.Contains(pq.Keyword)));
     }
 
+    public async Task<IPagedList<T>> GetPagedPostsAsync<T>(
+   PostQuery condition,
+   IPagingParams pagingParams,
+   Func<IQueryable<Post>, IQueryable<T>> mapper)
+    {
+        var posts = FilterPost(condition);
+        var projectedPosts = mapper(posts);
+
+        return await projectedPosts.ToPagedListAsync(pagingParams);
+    }
+
     public async Task<IPagedList<Post>> GetPagedPostAsync(
             PostQuery pq,
             int pageNumber = 1,

@@ -166,6 +166,11 @@ namespace TatBlog.Services.Blogs
 
         IQueryable<Post> FilterPost(PostQuery pq);
 
+        Task<IPagedList<T>> GetPagedPostsAsync<T>(
+   PostQuery condition,
+   IPagingParams pagingParams,
+   Func<IQueryable<Post>, IQueryable<T>> mapper);
+
         Task<IPagedList<Post>> GetPagedPostAsync(
                 PostQuery pq,
                 int pageNumber = 1,
