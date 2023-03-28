@@ -25,6 +25,22 @@ namespace TatBlog.Services.Authors
         //Câu 2. C : Tìm một tác giả theo tên định danh (slug).
         Task<Author> GetAuthorBySlugAsync(string Slug, CancellationToken cancellationToken = default);
 
+        Task<Author> GetCachedAuthorByIdAsync(int authorId);
+
+        Task<Author> GetCachedAuthorBySlugAsync(
+            string slug, CancellationToken cancellationToken = default);
+
+        Task<IPagedList<AuthorItem>> GetPagedAuthorsAsync(
+        IPagingParams pagingParams,
+        string name = null,
+        CancellationToken cancellationToken = default);
+
+        Task<IPagedList<T>> GetPagedAuthorsAsync<T>(
+            Func<IQueryable<Author>, IQueryable<T>> mapper,
+            IPagingParams pagingParams,
+            string name = null,
+            CancellationToken cancellationToken = default);
+
         //Câu 2. D : Lấy và phân trang danh sách tác giả kèm theo số lượng bài viết của tác giả
         //đó.Kết quả trả về kiểu IPagedList<AuthorItem>.
         Task<IPagedList<AuthorItem>> GetPagedAuthorAsync(
@@ -38,7 +54,7 @@ namespace TatBlog.Services.Authors
         CancellationToken cancellationToken = default);
 
         //Câu 2. E : Thêm hoặc cập nhật thông tin một tác giả.
-        Task<Author> AddOrUpdateAuthorAsync(
+        Task<bool> AddOrUpdateAuthorAsync(
              Author author,
              CancellationToken cancellationToken = default);
 
@@ -46,6 +62,10 @@ namespace TatBlog.Services.Authors
             int id,
             string slug,
             CancellationToken cancellationToken = default);
+
+        Task<bool> SetImageUrlAsync(
+        int authorId, string imageUrl,
+        CancellationToken cancellationToken = default);
 
         Task<Author> CreateOrUpdateAuthorAsync(
         Author author, CancellationToken cancellationToken = default);
