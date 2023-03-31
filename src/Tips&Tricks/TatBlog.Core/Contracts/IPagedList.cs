@@ -8,21 +8,21 @@ namespace TatBlog.Core.Contracts;
 
 public interface IPagedList
 {
-	public int PageCount { get; set; }
-	public int TotalItemCount { get; }
-	public int PageIndex { get; set; }
-	public int PageNumber { get; set; }
-	public int PageSize { get; set; }
-	public bool HasPreviousPage { get; }
-	public bool HasNextPage { get; }
-	public bool IsFirstPage { get; }
-	public bool IsLastPage { get; }
-	public int FirstItemIndex { get; }
-	public int LastItemIndex { get; }
+    public int PageCount { get; }
+    public int TotalItemCount { get; }
+    public int PageIndex { get; }
+    public int PageNumber { get; }
+    public int PageSize { get; }
+    public bool HasPreviousPage { get; }
+    public bool HasNextPage { get; }
+    public bool IsFirstPage { get; }
+    public bool IsLastPage { get; }
+    public int FirstItemIndex { get; }
+    public int LastItemIndex { get; }
 }
 
 public interface IPagedList<out T> : IPagedList, IEnumerable<T>
 {
-	public T this[int index] { get; }
-	public int Count { get; }
+    T this[int index] { get; }
+    int Count { get; }
 }

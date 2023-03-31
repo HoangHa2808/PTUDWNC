@@ -21,6 +21,38 @@ public interface ISubscriberRepository
     // Tìm danh sách người theo dõi
     Task<IPagedList<Subscriber>> SearchSubscribersAsync(IPagingParams pagingParams, string keywords, State subscribeStatus, CancellationToken cancellationToken = default);
 
+    Task<Subscriber> GetCachedSubscriberByIdAsync(int subscriberId);
+
+    Task<Subscriber> GetCachedSubscriberByEmailAsync(
+        string email, CancellationToken cancellationToken = default);
+
+    Task<IPagedList<Subscriber>> GetPagedSubscribersAsync(
+           IPagingParams pagingParams,
+           string name = null,
+           CancellationToken cancellationToken = default);
+
+    Task<IPagedList<T>> GetPagedSubscribersAsync<T>(
+       Func<IQueryable<Subscriber>, IQueryable<T>> mapper,
+       IPagingParams pagingParams,
+       string name = null,
+       CancellationToken cancellationToken = default);
+
+    Task<bool> IsSubscriberExistedEmail(
+        int id,
+           string email,
+           CancellationToken cancellationToken = default);
+
+    Task<bool> IsExistedEmail(
+           string email,
+           CancellationToken cancellationToken = default);
+
+    Task<Subscriber> CreateOrUpdateSubscriberAsync(
+       Subscriber subscriber, CancellationToken cancellationToken = default);
+
+    Task<bool> AddOrUpdateSubscriberAsync(
+         Subscriber subscriber,
+         CancellationToken cancellationToken = default);
+
     // Đăng ký theo dõi
     Task<bool> SubscribeAsync(string email, CancellationToken cancellationToken = default);
 

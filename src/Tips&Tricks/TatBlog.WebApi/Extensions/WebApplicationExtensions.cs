@@ -6,6 +6,7 @@ using TatBlog.Data.Seeders;
 using TatBlog.Services.Timing;
 using TatBlog.Services.Blogs;
 using TatBlog.Services.Authors;
+using TatBlog.Services.Subscribers;
 using TatBlog.Services.Media;
 using TatBlog.WebApi.Extensions;
 using TatBlog.WebApi.Filters;
@@ -44,9 +45,10 @@ namespace TatBlog.WebApi.Extensions
                 .GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<ITimeProvider, LocalTimeProvider>();
-            builder.Services.AddScoped<IMediaManager, LocalFileSystemMediaManager>();
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
             builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+            builder.Services.AddScoped<IMediaManager, LocalFileSystemMediaManager>();
+            builder.Services.AddScoped<ISubscriberRepository, SubscriberRepository>();
 
             return builder;
         }

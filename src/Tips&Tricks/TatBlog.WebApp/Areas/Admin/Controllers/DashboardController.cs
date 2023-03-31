@@ -38,6 +38,7 @@ namespace TatBlog.WebApp.Areas.Admin.Controllers
             ViewBag.CountPost = await _blogRepository.CountPostAsync();
             ViewBag.CountUnPublicPost = await _blogRepository.CountUnPublicPostAsync();
             ViewBag.CountCategory = await _blogRepository.CountCategoryAsync();
+
             ViewBag.CountAuthor = await _authorRepository.CountAuthorAsync();
             ViewBag.CountComment = await _blogRepository.CountCommentAsync();
             ViewBag.CountSubscriber = await _subscriberRepository.CountSubAsync();

@@ -8,7 +8,7 @@ namespace TatBlog.WebApi.Extensions
         public static ValidationFailureResponse ToResponse(
             this ValidationResult validationResult)
         {
-            return validationResult.ToResponse();
+            return validationResult.Errors.ToResponse();
         }
 
         public static ValidationFailureResponse ToResponse(

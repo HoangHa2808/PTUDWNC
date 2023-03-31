@@ -2,16 +2,18 @@
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 using TatBlog.Core.Collections;
 using TatBlog.Core.DTO;
 using TatBlog.Core.Entities;
 using TatBlog.Services.Blogs;
 using TatBlog.Services.Authors;
 using TatBlog.Services.Media;
-using TatBlog.WebApi.Extensions;
 using TatBlog.WebApi.Filters;
 using TatBlog.WebApi.Models;
+using TatBlog.Core.Contracts;
+using TatBlog.WebApi.Models.Authors;
+using TatBlog.WebApi.Models.Posts;
+using System.Net;
 
 namespace TatBlog.WebApi.Endpoints
 {
@@ -22,55 +24,56 @@ namespace TatBlog.WebApi.Endpoints
         {
             var routeGroupBuilder = app.MapGroup("/api/authors");
             // Định nghĩa API endpoint đầu tiên
+
+            // Lấy danh sách tác giả. Hỗ trợ tìm theo tên và phân trang kết quả
             routeGroupBuilder.MapGet("/", GetAuthors)
                 .WithName("GetAuthors")
-                .Produces<PaginationResult<AuthorItem>>();
+                .Produces<ApiResponse<PaginationResult<AuthorItem>>>();
 
             // Quản lý thông tin tác giả
+            // Lấy thông tin chi tiết của tác giả có mã số(id) cho trước
             routeGroupBuilder.MapGet("/{id:int}", GetAuthorDetails)
                 .WithName("GetAuthorById")
-                .Produces<AuthorItem>()
-                .Produces(404);
+                .Produces<ApiResponse<AuthorItem>>();
 
             // GetPostsByAuthorsSlug
             routeGroupBuilder.MapGet(
                 "/{slug:regex(^[a-z0-9 -]+$)}/posts", GetPostsByAuthorsSlug)
                 .WithName("GetPostsByAuthorsSlug")
-                .Produces<PaginationResult<PostDTO>>();
+                .Produces<ApiResponse<PaginationResult<PostDTO>>>();
 
-            routeGroupBuilder.MapGet("/best/{limit:int}", ListAuthorBest)
-              .WithName("ListAuthorBest")
-              .Produces<AuthorItem>()
-              .Produces(404);
+            // ListAuthorBest
+            // Lấy danh sách N (limit) tác giả có nhiều bài viết nhất
+            routeGroupBuilder.MapGet("/best/{limit:int}", ListBestAuthors)
+              .WithName("GetBestAuthors")
+              .Produces<ApiResponse<AuthorItem>>();
 
             // AddAuthor
             routeGroupBuilder.MapPost("/", AddAuthor)
                 .WithName("AddNewAuthor")
                 .AddEndpointFilter<ValidatorFilter<AuthorEditModel>>()
-                .Produces(201)
-                .Produces(400)
-                .Produces(409);
+                .Produces(401)
+              .Produces<ApiResponse<AuthorItem>>();
 
             // SetAuthorPicture
+            // Upload một hình ảnh và sử dụng nó làm ảnh đại diện cho tác giả
             routeGroupBuilder.MapPost("/{id:int}/avatar", SetAuthorPicture)
                 .WithName("SetAuthorPicture")
                 .Accepts<IFormFile>("multipart/form-data")
-                .Produces<string>()
-                .Produces(404);
+                .Produces(401)
+                .Produces<ApiResponse<string>>();
 
             // UpdateAuthor
             routeGroupBuilder.MapPut("/{id:int}", UpdateAuthor)
-                .AddEndpointFilter<ValidatorFilter<AuthorEditModel>>()
                .WithName("UpdateAnAuthor")
-               .Produces(204)
-               .Produces(400)
-               .Produces(409);
+               .Produces(401)
+                .Produces<ApiResponse<string>>();
 
             // DeleteAuthor
             routeGroupBuilder.MapDelete("/{id:int}", DeleteAuthor)
                 .WithName("DeleteAuthor")
-                .Produces(204)
-                .Produces(404);
+                .Produces(401)
+                .Produces<ApiResponse<string>>();
 
             return app;
         }
@@ -84,7 +87,7 @@ namespace TatBlog.WebApi.Endpoints
                 .GetPagedAuthorsAsync(model, model.Name);
 
             var paginationResult = new PaginationResult<AuthorItem>(authorList);
-            return Results.Ok(paginationResult);
+            return Results.Ok(ApiResponse.Success(paginationResult));
         }
 
         // GetAuthorDetails
@@ -94,8 +97,8 @@ namespace TatBlog.WebApi.Endpoints
             IMapper mapper)
         {
             var author = await authorRepository.GetCachedAuthorByIdAsync(id);
-            return author == null ? Results.NotFound($"Không tìm thấy tác giả có mã số {id}")
-                : Results.Ok(mapper.Map<AuthorItem>(author));
+            return author == null ? Results.Ok(ApiResponse.Fail(HttpStatusCode.NotFound, $"Không tìm thấy tác giả có mã số {id}"))
+                : Results.Ok(ApiResponse.Success(mapper.Map<AuthorItem>(author)));
         }
 
         // GetPostByAuthorId
@@ -115,7 +118,7 @@ namespace TatBlog.WebApi.Endpoints
                 posts => posts.ProjectToType<PostDTO>());
 
             var paginationResult = new PaginationResult<PostDTO>(postList);
-            return Results.Ok(paginationResult);
+            return Results.Ok(ApiResponse.Success(paginationResult));
         }
 
         // GetPostsByAuthorsSlug
@@ -135,18 +138,18 @@ namespace TatBlog.WebApi.Endpoints
                 postsList => postsList.ProjectToType<PostDTO>());
 
             var paginationResult = new PaginationResult<PostDTO>(postsList);
-            return Results.Ok(paginationResult);
+            return Results.Ok(ApiResponse.Success(paginationResult));
         }
 
         // ListAuthorBest
-        public static async Task<IResult> ListAuthorBest(
-           int N,
-            IAuthorRepository authorRepository,
-            IMapper mapper)
+        public static async Task<IResult> ListBestAuthors(
+           int limit,
+            IAuthorRepository authorRepository)
         {
-            var author = await authorRepository.ListAuthorAsync(N);
-            return author == null ? Results.NotFound($"Không tìm thấy danh sách {N} tác giả có nhiều bài viết đóng góp cho blog nhất")
-                : Results.Ok(mapper.Map<AuthorItem>(author));
+            var author = await authorRepository.ListAuthorAsync(limit);
+            //return author == null ? Results.NotFound($"Không tìm thấy danh sách {N} tác giả có nhiều bài viết đóng góp cho blog nhất")
+            //    : Results.Ok(mapper.Map<AuthorItem>(author));
+            return Results.Ok(ApiResponse.Success(author));
         }
 
         // AddAuthor
@@ -165,16 +168,15 @@ namespace TatBlog.WebApi.Endpoints
 
             if (await authorRepository.IsAuthorSlugExistedAsync(0, model.UrlSlug))
             {
-                return Results.Conflict(
-                    $"Slug '{model.UrlSlug}' đã được sử dụng");
+                return Results.Ok(ApiResponse.Fail(HttpStatusCode.Conflict,
+                    $"Slug '{model.UrlSlug}' đã được sử dụng"));
             }
 
             var author = mapper.Map<Author>(model);
             await authorRepository.AddOrUpdateAuthorAsync(author);
 
-            return Results.CreatedAtRoute(
-                "GetAuthorById", new { author.Id },
-                mapper.Map<AuthorItem>(author));
+            return Results.Ok(ApiResponse.Success(
+                mapper.Map<AuthorItem>(author), HttpStatusCode.Created));
         }
 
         // SetAuthorPicture
@@ -189,41 +191,40 @@ namespace TatBlog.WebApi.Endpoints
 
             if (string.IsNullOrWhiteSpace(imageUrl))
             {
-                return Results.BadRequest("Không lưu được tập tin");
+                return Results.Ok(ApiResponse.Fail(HttpStatusCode.BadRequest, "Không lưu được tập tin"));
             }
 
             await authorRepository.SetImageUrlAsync(id, imageUrl);
-            return Results.Ok(imageUrl);
+            return Results.Ok(ApiResponse.Success(imageUrl));
         }
 
         // UpdateAuthor
         private static async Task<IResult> UpdateAuthor(
             int id, AuthorEditModel model,
-            //IValidator<AuthorEditModel> validator,
+            IValidator<AuthorEditModel> validator,
             IAuthorRepository authorRepository,
            IMapper mapper)
         {
-            //var validationResult = await validator.ValidateAsync(model);
+            var validationResult = await validator.ValidateAsync(model);
 
-            //if (!validationResult.IsValid)
-            //{
-            //    return Results.BadRequest(
-            //        validationResult.Errors.ToResponse());
-            //}
+            if (!validationResult.IsValid)
+            {
+                return Results.Ok(ApiResponse.Fail(HttpStatusCode.BadRequest, validationResult));
+            }
 
             if (await authorRepository
                    .IsAuthorSlugExistedAsync(id, model.UrlSlug))
             {
-                return Results.Conflict(
-                  $"Slug '{model.UrlSlug}' da được sử dụng");
+                return Results.Ok(ApiResponse.Fail(HttpStatusCode.Conflict,
+                  $"Slug '{model.UrlSlug}' đã được sử dụng"));
             }
 
             var author = mapper.Map<Author>(model);
             author.Id = id;
 
             return await authorRepository.AddOrUpdateAuthorAsync(author)
-                ? Results.NoContent()
-                   : Results.NotFound();
+                ? Results.Ok(ApiResponse.Success("Author is updated", HttpStatusCode.NoContent))
+                   : Results.Ok(ApiResponse.Fail(HttpStatusCode.NotFound, "Could not find author"));
         }
 
         // DeleteAuthor
@@ -231,8 +232,8 @@ namespace TatBlog.WebApi.Endpoints
             int id, IAuthorRepository authorRepository)
         {
             return await authorRepository.DeleteAuthorByIdAsync(id)
-                ? Results.NoContent()
-                : Results.NotFound($"Could not find author with id = {id}");
+                ? Results.Ok(ApiResponse.Success("Author is deleted", HttpStatusCode.NoContent))
+                : Results.Ok(ApiResponse.Fail(HttpStatusCode.NotFound, "Could not find author "));
         }
     }
 }
