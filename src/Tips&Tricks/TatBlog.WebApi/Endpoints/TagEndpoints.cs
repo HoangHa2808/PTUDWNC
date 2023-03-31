@@ -12,6 +12,9 @@ using TatBlog.Services.Media;
 using TatBlog.WebApi.Extensions;
 using TatBlog.WebApi.Filters;
 using TatBlog.WebApi.Models;
+using TatBlog.WebApi.Models.Posts;
+using TatBlog.WebApi.Models.Tags;
+using System.Net;
 
 namespace TatBlog.WebApi.Endpoints
 {
@@ -24,41 +27,38 @@ namespace TatBlog.WebApi.Endpoints
             // Định nghĩa API endpoint đầu tiên
             routeGroupBuilder.MapGet("/", GetTags)
                 .WithName("GetTags")
-                .Produces<PaginationResult<TagItem>>();
+                .Produces<ApiResponse<PaginationResult<TagItem>>>();
 
             // Quản lý thông tin thẻ
-            routeGroupBuilder.MapGet("/{id:int}", GetTagDetails)
+            routeGroupBuilder.MapGet("/{id:int}", GetPostByTagId)
                 .WithName("GetTagById")
-                .Produces<TagItem>()
-                .Produces(404);
+                .Produces<ApiResponse<TagItem>>();
 
             // GetPostsByTagSlug
             routeGroupBuilder.MapGet(
                 "/{slug:regex(^[a-z0-9 -]+$)}/posts", GetPostsByTagSlug)
                 .WithName("GetPostsByTagSlug")
-                .Produces<PaginationResult<PostDTO>>();
+                .Produces<ApiResponse<PaginationResult<PostDTO>>>();
 
             // AddTag
             routeGroupBuilder.MapPost("/", AddTag)
                 .WithName("AddNewTag")
                 .AddEndpointFilter<ValidatorFilter<TagEditModel>>()
-                .Produces(201)
-                .Produces(400)
-                .Produces(409);
+                .Produces(401)
+              .Produces<ApiResponse<TagItem>>();
 
             // UpdateTag
             routeGroupBuilder.MapPut("/{id:int}", UpdateTag)
                 .AddEndpointFilter<ValidatorFilter<TagEditModel>>()
                .WithName("UpdateAnTag")
-               .Produces(204)
-               .Produces(400)
-               .Produces(409);
+                .Produces(401)
+                .Produces<ApiResponse<string>>();
 
             // DeleteTag
             routeGroupBuilder.MapDelete("/{id:int}", DeleteTag)
                 .WithName("DeleteTag")
-                .Produces(204)
-                .Produces(404);
+                 .Produces(401)
+                .Produces<ApiResponse<string>>();
 
             return app;
         }
@@ -72,38 +72,18 @@ namespace TatBlog.WebApi.Endpoints
                 .GetPagedTagsAsync(model, model.Name);
 
             var paginationResult = new PaginationResult<TagItem>(tagList);
-            return Results.Ok(paginationResult);
+            return Results.Ok(ApiResponse.Success(paginationResult));
         }
 
-        // GetTagDetails
-        public static async Task<IResult> GetTagDetails(
+        // GetPostByTagId
+        public static async Task<IResult> GetPostByTagId(
            int id,
             IBlogRepository blogRepository,
             IMapper mapper)
         {
             var tag = await blogRepository.GetCachedTagByIdAsync(id);
-            return tag == null ? Results.NotFound($"Không tìm thấy thẻ có mã số {id}")
-                : Results.Ok(mapper.Map<TagItem>(tag));
-        }
-
-        // GetPostByTagId
-        public static async Task<IResult> GetPostByTagId(
-            int id,
-            [AsParameters] PagingModel pagingModel,
-            IBlogRepository blogRepository)
-        {
-            var postQuery = new PostQuery()
-            {
-                TagId = id,
-                PublishedOnly = true
-            };
-
-            var postList = await blogRepository.GetPagedPostsAsync(
-                postQuery, pagingModel,
-                posts => posts.ProjectToType<PostDTO>());
-
-            var paginationResult = new PaginationResult<PostDTO>(postList);
-            return Results.Ok(paginationResult);
+            return tag == null ? Results.Ok(ApiResponse.Fail(HttpStatusCode.NotFound, $"Không tìm thấy thẻ có mã số {id}"))
+                : Results.Ok(ApiResponse.Success(mapper.Map<TagItem>(tag)));
         }
 
         // GetPostsByTagSlug
@@ -123,7 +103,7 @@ namespace TatBlog.WebApi.Endpoints
                 postsList => postsList.ProjectToType<PostDTO>());
 
             var paginationResult = new PaginationResult<PostDTO>(postsList);
-            return Results.Ok(paginationResult);
+            return Results.Ok(ApiResponse.Success(paginationResult));
         }
 
         // AddTag
@@ -134,37 +114,44 @@ namespace TatBlog.WebApi.Endpoints
         {
             if (await blogRepository.IsTagSlugExistedAsync(0, model.UrlSlug))
             {
-                return Results.Conflict(
-                    $"Slug '{model.UrlSlug}' đã được sử dụng");
+                return Results.Ok(ApiResponse.Fail(HttpStatusCode.Conflict,
+                    $"Slug '{model.UrlSlug}' đã được sử dụng"));
             }
 
             var tag = mapper.Map<Tag>(model);
             await blogRepository.AddOrUpdateTagAsync(tag);
 
-            return Results.CreatedAtRoute(
-                "GetTagById", new { tag.Id },
-                mapper.Map<TagItem>(tag));
+            return Results.Ok(ApiResponse.Success(
+                mapper.Map<TagItem>(tag), HttpStatusCode.Created));
         }
 
         // UpdateTag
         private static async Task<IResult> UpdateTag(
             int id, TagEditModel model,
+            IValidator<TagEditModel> validator,
             IBlogRepository blogRepository,
            IMapper mapper)
         {
+            var validationResult = await validator.ValidateAsync(model);
+
+            if (!validationResult.IsValid)
+            {
+                return Results.Ok(ApiResponse.Fail(HttpStatusCode.BadRequest, validationResult));
+            }
+
             if (await blogRepository
                    .IsTagSlugExistedAsync(id, model.UrlSlug))
             {
-                return Results.Conflict(
-                  $"Slug '{model.UrlSlug}' đã được sử dụng");
+                return Results.Ok(ApiResponse.Fail(HttpStatusCode.Conflict,
+                  $"Slug '{model.UrlSlug}' đã được sử dụng"));
             }
 
             var tag = mapper.Map<Tag>(model);
             tag.Id = id;
 
             return await blogRepository.AddOrUpdateTagAsync(tag)
-                ? Results.NoContent()
-                   : Results.NotFound();
+               ? Results.Ok(ApiResponse.Success("Tag is updated", HttpStatusCode.NoContent))
+                   : Results.Ok(ApiResponse.Fail(HttpStatusCode.NotFound, "Could not find tag"));
         }
 
         // DeleteTag
@@ -172,8 +159,8 @@ namespace TatBlog.WebApi.Endpoints
             int id, IBlogRepository blogRepository)
         {
             return await blogRepository.DeleteTagByIdAsync(id)
-                ? Results.NoContent()
-                : Results.NotFound($"Could not find tag with id = {id}");
+               ? Results.Ok(ApiResponse.Success("Tag is deleted", HttpStatusCode.NoContent))
+                : Results.Ok(ApiResponse.Fail(HttpStatusCode.NotFound, "Could not find tag"));
         }
     }
 }

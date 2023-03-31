@@ -7,11 +7,13 @@ namespace TatBlog.WebApi.Models
     public class ApiResponse
     {
         public bool IsSuccess => Errors.Count == 0;
-        
-        public HttpStatusCode StatusCode { get; set; }
-        public IList<string> Errors { get; set; }
-        protected ApiResponse() {
-         StatusCode = HttpStatusCode.OK;
+
+        public HttpStatusCode StatusCode { get; init; }
+        public IList<string> Errors { get; init; }
+
+        protected ApiResponse()
+        {
+            StatusCode = HttpStatusCode.OK;
             Errors = new List<string>();
         }
 
@@ -53,7 +55,7 @@ namespace TatBlog.WebApi.Models
                 Errors = new List<string>(errorMessages)
             };
         }
-        
+
         public static ApiResponse Fail(
             HttpStatusCode statusCode,
             ValidationResult validationResult)
@@ -62,7 +64,6 @@ namespace TatBlog.WebApi.Models
                .Select(x => x.ErrorMessage)
                .Where(e => !string.IsNullOrWhiteSpace(e))
                .ToArray());
-           
         }
     }
 

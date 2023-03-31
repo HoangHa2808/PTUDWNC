@@ -222,7 +222,8 @@ namespace TatBlog.Services.Authors
         public async Task<IList<AuthorItem>> ListAuthorAsync(
             int N, CancellationToken cancellationToken = default)
         {
-            return await _context.Set<Author>()
+            return await _context.Authors
+                 .Include(a => a.Posts)
                  .Select(x => new AuthorItem()
                  {
                      Id = x.Id,
@@ -236,11 +237,7 @@ namespace TatBlog.Services.Authors
                  })
                  .OrderByDescending(x => x.PostCount)
                  .Take(N)
-     .ToListAsync(cancellationToken);
-            //return await _context.Set<Author>()
-            //               .OrderByDescending(x => x.Posts.Count)
-            //               .Take(N)
-            //               .ToListAsync(cancellationToken);
+                 .ToListAsync(cancellationToken);
         }
 
         #endregion Phần C.2

@@ -5,6 +5,7 @@ using TatBlog.Core.Contracts;
 using TatBlog.Data.Contexts;
 using TatBlog.Services.Extensions;
 using Microsoft.Extensions.Caching.Memory;
+using System.Xml.Linq;
 
 namespace TatBlog.Services.Blogs;
 
@@ -804,7 +805,7 @@ public class BlogRepository : IBlogRepository
 
     // 1.s: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
     // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
-    public async Task<IPagedList<Post>> GetPagedPostsAsync(
+    public async Task<IPagedList<Post>> GetPagedsPostAsync(
         PostQuery pq, IPagingParams pagingParams,
         CancellationToken cancellationToken = default)
     {
@@ -1003,6 +1004,14 @@ public class BlogRepository : IBlogRepository
         return await _context.SaveChangesAsync(cancellationToken) > 0;
     }
 
+    public async Task<bool> ChangeCommentByIdAsync(
+        int id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Comment>()
+            .Where(comment => comment.Id == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(comment => comment.IsApproved, comment => !comment.IsApproved), cancellationToken) > 0;
+    }
+
     public async Task<IPagedList<Comment>> GetPagedCommentAsync(
         int pageNumber = 1,
         int pageSize = 10,
@@ -1036,9 +1045,16 @@ public class BlogRepository : IBlogRepository
             .ToPagedListAsync(pagingParams, cancellationToken);
     }
 
+    public async Task<IList<Comment>> GetPostCommentsAsync(int commentId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<Comment>()
+            .Where(c => c.PostId == commentId && c.IsApproved)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> DeleteCommentByIdAsync(
-    int commentId,
-    CancellationToken cancellationToken = default)
+        int commentId,
+        CancellationToken cancellationToken = default)
     {
         return await _context.Comments
            .Where(x => x.Id == commentId)

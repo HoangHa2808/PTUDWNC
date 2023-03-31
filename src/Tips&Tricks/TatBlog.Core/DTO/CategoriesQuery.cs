@@ -9,7 +9,6 @@ namespace TatBlog.Core.DTO
 {
     public class CategoriesQuery
     {
-       
-        public List<Post> posts { get; set; } 
+        public List<Post> posts { get; set; }
     }
 }

@@ -206,7 +206,7 @@ namespace TatBlog.Services.Blogs
 
         // 1.s: Tìm và phân trang các bài viết thỏa mãn điều kiện tìm kiếm được cho trong
         // đối tượng PostQuery(kết quả trả về kiểu IPagedList<Post>)
-        Task<IPagedList<Post>> GetPagedPostsAsync(PostQuery pq,
+        Task<IPagedList<Post>> GetPagedsPostAsync(PostQuery pq,
             IPagingParams pagingParams,
             CancellationToken cancellationToken = default);
 
@@ -268,10 +268,16 @@ namespace TatBlog.Services.Blogs
             Comment comment,
             CancellationToken cancellationToken = default);
 
+        Task<bool> ChangeCommentByIdAsync(
+        int id, CancellationToken cancellationToken = default);
+
         Task<IPagedList<Comment>> GetPagedCommentsAsync(
             IPagingParams pagingParams,
             string name = null,
             CancellationToken cancellationToken = default);
+
+        Task<IList<Comment>> GetPostCommentsAsync(
+            int commentId, CancellationToken cancellationToken = default);
 
         Task<bool> DeleteCommentByIdAsync(int commentId,
         CancellationToken cancellationToken = default);
