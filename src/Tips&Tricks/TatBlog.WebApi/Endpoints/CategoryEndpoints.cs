@@ -7,7 +7,6 @@ using TatBlog.Core.Collections;
 using TatBlog.Core.DTO;
 using TatBlog.Core.Entities;
 using TatBlog.Services.Blogs;
-using TatBlog.Services.Authors;
 using TatBlog.Services.Media;
 using TatBlog.WebApi.Extensions;
 using TatBlog.WebApi.Filters;
@@ -71,13 +70,24 @@ namespace TatBlog.WebApi.Endpoints
         // Xử lý yêu cầu tìm và lấy danh sách chủ đề
         public static async Task<IResult> GetCategoies(
             [AsParameters] CategoryFilterModel model,
-            IBlogRepository bolgRepository)
+            IBlogRepository blogRepository,
+            bool Paged)
         {
-            var categoryList = await bolgRepository
+            if (Paged)
+            {
+                var categoryList = await blogRepository
                 .GetPagedCategoriesAsync(model, model.Name);
 
-            var paginationResult = new PaginationResult<CategoryItem>(categoryList);
-            return Results.Ok(ApiResponse.Success(paginationResult));
+                var paginationResult = new PaginationResult<CategoryItem>(categoryList);
+                return Results.Ok(ApiResponse.Success(paginationResult));
+            }
+            else
+            {
+                var categoryList = await blogRepository
+                .GetCategoriesAsync();
+
+                return Results.Ok(ApiResponse.Success(categoryList));
+            }
         }
 
         // GetPostByCategoryId

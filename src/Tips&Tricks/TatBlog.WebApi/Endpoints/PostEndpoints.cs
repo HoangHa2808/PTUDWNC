@@ -100,12 +100,13 @@ namespace TatBlog.WebApi.Endpoints
 
         // Xử lý yêu cầu tìm và lấy danh sách bài viết
         public static async Task<IResult> GetPosts(
-            [AsParameters] PostQuery query,
-            [AsParameters] PagingModel model,
-            IBlogRepository bolgRepository)
+            [AsParameters] PostFilterModel model,
+            IBlogRepository bolgRepository,
+            IMapper mapper)
         {
+            var postQuery = mapper.Map<PostQuery>(model);
             var postList = await bolgRepository
-                .GetPagedPostsAsync(query, model, posts => posts.ProjectToType<PostDTO>());
+                .GetPagedPostsAsync(postQuery, model, posts => posts.ProjectToType<PostDTO>());
 
             var paginationResult = new PaginationResult<PostDTO>(postList);
             return Results.Ok(ApiResponse.Success(paginationResult));

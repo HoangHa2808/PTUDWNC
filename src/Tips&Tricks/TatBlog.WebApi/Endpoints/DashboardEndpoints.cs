@@ -18,7 +18,7 @@ namespace TatBlog.WebApi.Endpoints
 
             routeGroupBuilder.MapGet("/", GetDashboards)
              .WithName("GetDashboards")
-                .Produces<ApiResponse<AuthorItem>>();
+                .Produces<ApiResponse<Dashboards>>();
             return app;
         }
 
