@@ -43,7 +43,7 @@ namespace TatBlog.WebApi.Endpoints
             return app;
         }
 
-        // Xử lý yêu cầu tìm và lấy danh sách tác giả
+        // Xử lý yêu cầu tìm và lấy danh sách bình luận
         //public static async Task<IResult> GetComments(
         //    [AsParameters]  ,
         //    [AsParameters] PagingModel model,
