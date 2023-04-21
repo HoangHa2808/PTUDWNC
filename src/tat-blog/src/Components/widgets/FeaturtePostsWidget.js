@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link } from 'react-router-dom';
-import { getFeaturedPosts } from "../../Services/Widgets";
+import { getFeaturedPosts } from "../../services/Widgets";
 
 const FeaturtePostsWidget = () => {
     const [featurteList, setFeaturtePost] = useState([]);

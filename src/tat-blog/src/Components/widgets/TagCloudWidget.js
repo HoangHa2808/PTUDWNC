@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link } from 'react-router-dom';
-import { getTagCloud } from "../../Services/Widgets";
+import { getTagCloud } from "../../services/Widgets";
+import TagList from "../blog/TagList";
 
 const TagCloudWidget = () => {
     const [tagList, setTagList] = useState([]);
@@ -9,12 +10,11 @@ const TagCloudWidget = () => {
     useEffect(() => {
         getTagCloud().then(data => {
             if (data)
-            setTagList(data);
+                setTagList(data);
             else
-            setTagList([]);
+                setTagList([]);
         });
     }, [])
-
 
     return (
         <div className='mb-4'>
@@ -22,19 +22,8 @@ const TagCloudWidget = () => {
                 Danh sách các thẻ
             </h3>
             {tagList.length > 0 &&
-                <ListGroup>
-                    {tagList.map((item, index) => {
-                        return (
-                            <ListGroup.Item key={index}>
-                                <Link to={`/blog/tag/${item.urlSlug}`}
-                                    title={item.decripsion}
-                                    key={index}> 
-                                    {item.name}
-                                </Link>
-                            </ListGroup.Item>
-                        );
-                    })}
-                </ListGroup>
+
+                <TagList tagList={tagList}/> 
             }
         </div>
     );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link } from 'react-router-dom';
-import { getBestAuthors } from "../../Services/Widgets";
+import { getBestAuthors } from "../../services/Widgets";
 
 const BestAuthorsWidgert = () => {
     const [authorList, setAuthorList] = useState([]);

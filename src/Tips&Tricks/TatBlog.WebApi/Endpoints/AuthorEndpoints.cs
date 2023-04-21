@@ -38,9 +38,9 @@ namespace TatBlog.WebApi.Endpoints
 
             // GetPostsByAuthorsSlug
             routeGroupBuilder.MapGet(
-                "/{slug:regex(^[a-z0-9 -]+$)}/posts", GetPostsByAuthorsSlug)
-                .WithName("GetPostsByAuthorsSlug")
-                .Produces<ApiResponse<PaginationResult<PostDTO>>>();
+                "/{slug:regex(^[a-z0-9 -]+$)}/posts", GetPostByAuthorSlug)
+                .WithName("GetPostByAuthorSlug")
+                .Produces<ApiResponse<PostDTO>>();
 
             // ListAuthorBest
             // Lấy danh sách N (limit) tác giả có nhiều bài viết nhất
@@ -80,14 +80,12 @@ namespace TatBlog.WebApi.Endpoints
 
         // Xử lý yêu cầu tìm và lấy danh sách tác giả
         public static async Task<IResult> GetAuthors(
-            [AsParameters] AuthorFilterModel model,
             IAuthorRepository authorRepository)
         {
             var authorList = await authorRepository
-                .GetPagedAuthorsAsync(model, model.Name);
+                .GetAuthorsAsync();
 
-            var paginationResult = new PaginationResult<AuthorItem>(authorList);
-            return Results.Ok(ApiResponse.Success(paginationResult));
+            return Results.Ok(ApiResponse.Success(authorList));
         }
 
         // GetAuthorDetails
@@ -101,44 +99,18 @@ namespace TatBlog.WebApi.Endpoints
                 : Results.Ok(ApiResponse.Success(mapper.Map<AuthorItem>(author)));
         }
 
-        // GetPostByAuthorId
-        public static async Task<IResult> GetPostByAuthorId(
-            int id,
-            [AsParameters] PagingModel pagingModel,
-            IBlogRepository blogRepository)
+        // GetPostByAuthorSlug
+        public static async Task<IResult> GetPostByAuthorSlug(
+            string slug,
+            IAuthorRepository authorRepository,
+            IMapper mapper)
         {
-            var postQuery = new PostQuery()
-            {
-                AuthorId = id,
-                PublishedOnly = true
-            };
+            var author = await authorRepository.GetAuthorBySlugAsync(slug);
 
-            var postList = await blogRepository.GetPagedPostsAsync(
-                postQuery, pagingModel,
-                posts => posts.ProjectToType<PostDTO>());
+            return author == null ? Results.Ok(ApiResponse.Fail(
+                HttpStatusCode.NotFound, $"Không tìm thấy tác giả có tên định danh {slug}"))
+               : Results.Ok(ApiResponse.Success(mapper.Map<PostDetail>(author)));
 
-            var paginationResult = new PaginationResult<PostDTO>(postList);
-            return Results.Ok(ApiResponse.Success(paginationResult));
-        }
-
-        // GetPostsByAuthorsSlug
-        private static async Task<IResult> GetPostsByAuthorsSlug(
-            [FromRoute] string slug,
-            [AsParameters] PagingModel pagingModel,
-            IBlogRepository blogRepository)
-        {
-            var postQuery = new PostQuery()
-            {
-                AuthorSlug = slug,
-                PublishedOnly = true
-            };
-
-            var postsList = await blogRepository.GetPagedPostsAsync(
-                postQuery, pagingModel,
-                postsList => postsList.ProjectToType<PostDTO>());
-
-            var paginationResult = new PaginationResult<PostDTO>(postsList);
-            return Results.Ok(ApiResponse.Success(paginationResult));
         }
 
         // ListAuthorBest

@@ -159,6 +159,10 @@ namespace TatBlog.Services.Blogs
         Task<Post> GetPostByIdAsync(
         int postId, bool includeDetails = false,
         CancellationToken cancellationToken = default);
+        
+        Task<Post> GetPostBySlugAsync(
+        string postSlug, bool includeDetails = false,
+        CancellationToken cancellationToken = default);
 
         Task<bool> SetImageUrlAsync(
        int postId, string imageUrl,

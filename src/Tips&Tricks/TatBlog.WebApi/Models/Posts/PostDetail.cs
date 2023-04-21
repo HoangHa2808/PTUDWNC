@@ -36,6 +36,9 @@ namespace TatBlog.WebApi.Models.Posts
         // Ngày giờ cập nhật lần cuối
         public DateTime? ModifiedDate { get; set; }
 
+        // Kiểm tra bài viết có được công khai hay không
+        public bool Published { get; set; }
+
         // Chuyên mục của bài viết
         public CategoryDTO Category { get; set; }
 

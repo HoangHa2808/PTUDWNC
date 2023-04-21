@@ -2,7 +2,7 @@
 
 @{
     ViewData["PageTitle"] = "Xem chi tiết";
-    var postsQuery = (ViewBag.PostQuery as PostQuery) ?? new PostQuery();
+    var postsQuery = (ViewBag.PostQuery as Post) ?? new Post();
 }
 
 <div class="p-4">

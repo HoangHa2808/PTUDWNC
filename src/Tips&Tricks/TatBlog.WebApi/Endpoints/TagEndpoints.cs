@@ -65,14 +65,11 @@ namespace TatBlog.WebApi.Endpoints
 
         // Xử lý yêu cầu tìm và lấy danh sách thẻ
         public static async Task<IResult> GetTags(
-            [AsParameters] TagFilterModel model,
             IBlogRepository bolgRepository)
         {
-            var tagList = await bolgRepository
-                .GetPagedTagsAsync(model, model.Name);
+            var tagList = await bolgRepository.GetTagsItemsAsync();
 
-            var paginationResult = new PaginationResult<TagItem>(tagList);
-            return Results.Ok(ApiResponse.Success(paginationResult));
+            return Results.Ok(ApiResponse.Success(tagList));
         }
 
         // GetPostByTagId
