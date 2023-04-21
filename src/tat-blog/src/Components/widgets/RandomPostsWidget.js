@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link } from 'react-router-dom';
-import { getRandomPosts } from "../../Services/Widgets";
+import { getRandomPosts } from "../../services/Widgets";
 
 const RandomPostsWidget = () => {
     const [randomList, setRandomPost] = useState([]);

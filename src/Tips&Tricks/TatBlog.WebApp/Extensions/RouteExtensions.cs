@@ -25,11 +25,11 @@ namespace TatBlog.WebApp.Extensions
                 pattern: "blog/tag/{slug}",
                 defaults: new { controller = "Blog", action = "Tag" });
 
-            endpoints.MapControllerRoute(
-                name: "single-post",
-                pattern: "blog/postsdetail/{slug}",
-                defaults: new { controller = "Blog", action = "Post" });
-            
+            //endpoints.MapControllerRoute(
+            //    name: "single-post",
+            //    pattern: "blog/postsdetail/{slug}",
+            //    defaults: new { controller = "Blog", action = "Post" });
+
             endpoints.MapControllerRoute(
                 name: "single-post",
                 pattern: "blog/post/{year:int}/{month:int}/{day:int}/{slug}",

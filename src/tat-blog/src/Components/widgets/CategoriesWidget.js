@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link } from 'react-router-dom';
-import { getCategories } from "../../Services/Widgets";
+import { getCategories } from "../../services/Widgets";
 
 const CategoriesWidget = () => {
     const [categoryList, setCategoryList] = useState([]);
@@ -26,7 +26,7 @@ const CategoriesWidget = () => {
                     {categoryList.map((item, index) => {
                         return (
                             <ListGroup.Item key={index}>
-                                <Link to={`/blog/category?slug=${item.urlSlug}`}
+                                <Link to={`/blog/category/${item.urlSlug}`}
                                     title={item.description}
                                     key={index}> 
                                     {item.name}

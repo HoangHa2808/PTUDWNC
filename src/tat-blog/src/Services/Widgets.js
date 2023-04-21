@@ -1,20 +1,26 @@
 import axios from "axios";
+import { get_api } from './Methods';  
 
-export async function getCategories(){
-    try{
-        const response = await axios.get('https://localhost:7126/api/categories?PageSize=10&PageNumber=1&Paged=false');
+// export async function getCategories(){
+//     try{
+//         const response = await axios.get('https://localhost:7126/api/categories');
 
-        const data = response.data;
-        if (data.isSuccess)           
-            return data.result;
-            else
-            return null;
+//         const data = response.data;
+//         if (data.isSuccess)           
+//             return data.result;
+//             else
+//             return null;
 
-    } catch (error) {
-        console.log('Error', error.message);
-        return null;
-    }
-}
+//     } catch (error) {
+//         console.log('Error', error.message);
+//         return null;
+//     }
+// }
+
+export function getCategories() { 
+    return get_api(`https://localhost:7126/api/categories`); 
+}  
+   
 export async function getBestAuthors(limit){
     try{
         const response = await axios.get(`https://localhost:7126/api/authors/best/${limit}`);
@@ -30,6 +36,7 @@ export async function getBestAuthors(limit){
         return null;
     }
 }
+
 export async function getFeaturedPosts(limit){
     try{
         const response = await axios.get(`https://localhost:7126/api/posts/featured/${limit}`);
@@ -45,6 +52,7 @@ export async function getFeaturedPosts(limit){
         return null;
     }
 }
+
 export async function getRandomPosts(limit){
     try{
         const response = await axios.get(`https://localhost:7126/api/posts/random/${limit}`);
@@ -60,6 +68,7 @@ export async function getRandomPosts(limit){
         return null;
     }
 }
+
 export async function getArchives(limit){
     try{
         const response = await axios.get(`https://localhost:7126/api/posts/archives/${limit}`);
@@ -75,9 +84,10 @@ export async function getArchives(limit){
         return null;
     }
 }
+
 export async function getTagCloud(){
     try{
-        const response = await axios.get(`https://localhost:7126/api/tags?PageSize=10&PageNumber=1`);
+        const response = await axios.get(`https://localhost:7126/api/tags`);
 
         const data = response.data;
         if (data.isSuccess)           

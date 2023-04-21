@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Link } from 'react-router-dom';
-import { getMonth } from '../../Utils/Utils';
-import { getArchives } from "../../Services/Widgets";
+import { getMonth } from '../../utils/Utils';
+import { getArchives } from "../../services/Widgets";
 
 const ArchivesWidget = () => {
     const [archivesList, setArchivesList] = useState([]);
@@ -16,7 +16,6 @@ const ArchivesWidget = () => {
         });
     }, [])
 
-
     return (
         <div className='mb-4'>
             <h3 className='text-success mb-2'>
@@ -28,11 +27,11 @@ const ArchivesWidget = () => {
                         return (
                             <ListGroup.Item key={index}>
                                 <Link
-									to={`/blog/archive/${archivesList.year}/${archivesList.month}`}
+									to={`/blog/archive/${item.year}/${item.month}`}
 								>
-									{`${getMonth(archivesList.month)} ${
-										archivesList.year
-									} (${archivesList.postCount})`}
+									{`${getMonth(item.month)} ${
+										item.year
+									} (${item.postCount})`}
 								</Link>
                             </ListGroup.Item>
                         );

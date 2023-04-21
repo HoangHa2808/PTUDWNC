@@ -69,25 +69,11 @@ namespace TatBlog.WebApi.Endpoints
 
         // Xử lý yêu cầu tìm và lấy danh sách chủ đề
         public static async Task<IResult> GetCategoies(
-            [AsParameters] CategoryFilterModel model,
-            IBlogRepository blogRepository,
-            bool Paged)
-        {
-            if (Paged)
-            {
-                var categoryList = await blogRepository
-                .GetPagedCategoriesAsync(model, model.Name);
-
-                var paginationResult = new PaginationResult<CategoryItem>(categoryList);
-                return Results.Ok(ApiResponse.Success(paginationResult));
-            }
-            else
-            {
+           IBlogRepository blogRepository)
+         {
                 var categoryList = await blogRepository
                 .GetCategoriesAsync();
-
                 return Results.Ok(ApiResponse.Success(categoryList));
-            }
         }
 
         // GetPostByCategoryId
@@ -123,22 +109,15 @@ namespace TatBlog.WebApi.Endpoints
 
         // GetPostsByCategoriesSlug
         private static async Task<IResult> GetPostsByCategoriesSlug(
-            [FromRoute] string slug,
-            [AsParameters] PagingModel pagingModel,
-            IBlogRepository blogRepository)
+             string slug,
+            IBlogRepository blogRepository,
+            IMapper mapper)
         {
-            var postQuery = new PostQuery()
-            {
-                CategorySlug = slug,
-                PublishedOnly = true
-            };
+            var category = await blogRepository.FindCategoryByUrlAsync(slug);
 
-            var postsList = await blogRepository.GetPagedPostsAsync(
-                postQuery, pagingModel,
-                postsList => postsList.ProjectToType<PostDTO>());
-
-            var paginationResult = new PaginationResult<PostDTO>(postsList);
-            return Results.Ok(ApiResponse.Success(paginationResult));
+            return category == null ? Results.Ok(ApiResponse.Fail(
+                HttpStatusCode.NotFound, $"Không tìm thấy danh mục có tên định danh {slug}"))
+               : Results.Ok(ApiResponse.Success(mapper.Map<PostDetail>(category)));
         }
 
         // AddCategory

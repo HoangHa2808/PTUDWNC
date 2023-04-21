@@ -6,6 +6,7 @@ using TatBlog.Data.Contexts;
 using TatBlog.Services.Extensions;
 using Microsoft.Extensions.Caching.Memory;
 using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace TatBlog.Services.Blogs;
 
@@ -538,8 +539,8 @@ public class BlogRepository : IBlogRepository
     #region Post
 
     public async Task<bool> DeletePostsByIdAsync(
-  int postId,
-  CancellationToken cancellationToken = default)
+      int postId,
+      CancellationToken cancellationToken = default)
     {
         var post = await _context.Set<Post>().FindAsync(postId);
         if (post is null) return false;
@@ -603,6 +604,23 @@ public class BlogRepository : IBlogRepository
             .Include(x => x.Author)
             .Include(x => x.Tags)
             .FirstOrDefaultAsync(x => x.Id == postId, cancellationToken);
+    }
+
+    public async Task<Post> GetPostBySlugAsync(
+        string postSlug, bool includeDetails = false,
+        CancellationToken cancellationToken = default)
+    {
+        if (includeDetails)
+            return await _context.Set<Post>()
+                .Include(x => x.Category)
+                .Include(x => x.Author)
+                .Include(x => x.Tags)
+                .Where(x => x.UrlSlug == postSlug)
+                .FirstOrDefaultAsync(cancellationToken);
+        else
+            return await _context.Set<Post>()
+                .Where(x => x.UrlSlug == postSlug)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     // 1.l: Tìm một bài viết theo mã số
