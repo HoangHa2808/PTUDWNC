@@ -1,29 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
-import { Link } from 'react-router-dom';
-import { getCategories} from '../../services/BlogRepository';
+import { Link, } from 'react-router-dom';
+import { deleteComment, getComments } from '../../services/BlogRepository';
 import Loading from '../../components/Loading';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faPencil, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faTrash, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { Form } from 'react-bootstrap';
 
 export default function Comments() {
     const [tagsList, setTagsList] = useState([]),
-        [isVisibleLoading, setIsVisibleLoading] = useState(true);
+        [isVisibleLoading, setIsVisibleLoading] = useState(true),
+        [validated, setValidated] = useState(false);
 
 
-        useEffect(() => {
-            document.title = 'Danh sách bình luận';
-         
-            getCategories().then(data => {
-                console.log("data:")
-                console.log(data)
-                    if (data)
-                    setTagsList(data);
-                    else
-                    setTagsList([]);
-                    setIsVisibleLoading(false);
-                });
-        }, []);
+    useEffect(() => {
+        document.title = 'Danh sách bình luận';
+
+        getComments().then(data => {
+            console.log("data:")
+            console.log(data)
+            if (data)
+                setTagsList(data);
+            else
+                setTagsList([]);
+            setIsVisibleLoading(false);
+        });
+    }, []);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (e.currentTarget.checkValidity() === false) {
+            e.stopPropagation();
+            setValidated(true);
+        } else {
+            let form = new FormData(e.target);
+            deleteComment(form).then(data => {
+                if (data)
+                    alert('Đã lưu thành công!');
+                else
+                    alert('Đã xảy ra lỗi!');
+            });
+        }
+    }
 
     return (
         <>
@@ -43,39 +61,32 @@ export default function Comments() {
                         {tagsList.length > 0 ? tagsList.map((items, index) =>
                             <tr key={index}>
                                 <td>
-                                    <Link
-                                        to={`/admin/tags/edit/${items.id}`}
-                                        className='text-bold'>
-                                        {items.name}
-                                    </Link>
+                                    {items.name}
+
                                     {/* <p className='text-muted'>{items.description}</p> */}
                                 </td>
                                 <td>{items.description}</td>
                                 <td>{items.postedDate}</td>
                                 <td> <Link
-                                    to={`/admin/categories/toggle/${items.id}`}
+                                    to={`/admin/comments`}
                                     className='text-bold'
                                     type="submit">
                                     <div className='icon ml-5'>
-                                        {items.showOnMenu ? <FontAwesomeIcon icon={faCheck}/>: 
-                                        <FontAwesomeIcon icon={faXmark}/> 
+                                        {items.showOnMenu ? <FontAwesomeIcon icon={faCheck} /> :
+                                            <FontAwesomeIcon icon={faXmark} />
                                         }
                                     </div>
                                 </Link>
                                 </td>
-                                <td> <Link
-                                    to={`/admin/tags/toggle/${items.id}`}
-                                    className='btn btn-tm mr-5'
-                                    type="submit">
-                                        <FontAwesomeIcon icon={faPencil}/> Cập nhật
-                                </Link>
-                                 <Link
-                                    to={`/admin/tags/delete/${items.id}`}
-                                    className='btn btn-tm mr-5'
-                                    onClick="return confirm('Bạn có muốn xoá không?')">
-                                    <FontAwesomeIcon icon={faTrash} /> Xoá
-                                </Link></td>
-                                </tr>
+                                <td>
+                                 <Link   
+                                            to={`/admin/comments`}                                
+                                            className='btn btn-tm mr-5'
+                                            onClick={() => alert("Bạn có muốn xoá không?")}>
+                                            <FontAwesomeIcon icon={faTrash} /> Xoá
+                                       
+                                    </Link></td>
+                            </tr>
                         ) :
                             <tr>
                                 <td colSpan={4}>

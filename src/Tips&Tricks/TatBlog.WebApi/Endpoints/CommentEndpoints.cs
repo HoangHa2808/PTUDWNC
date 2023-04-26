@@ -24,9 +24,9 @@ namespace TatBlog.WebApi.Endpoints
         {
             var routeGroupBuilder = app.MapGroup("/api/comments");
             // Định nghĩa API endpoint đầu tiên
-            //routeGroupBuilder.MapGet("/", GetComments)
-            //    .WithName("GetComments")
-            //    .Produces<ApiResponse<PaginationResult<Comment>>>();
+            routeGroupBuilder.MapGet("/", GetComments)
+                .WithName("GetComments")
+                .Produces<ApiResponse<PaginationResult<Comment>>>();
 
             // Quản lý thông tin bình luận
             routeGroupBuilder.MapPost("/{id:int}", ChangesCommentStatus)
@@ -44,17 +44,16 @@ namespace TatBlog.WebApi.Endpoints
         }
 
         // Xử lý yêu cầu tìm và lấy danh sách bình luận
-        //public static async Task<IResult> GetComments(
-        //    [AsParameters]  ,
-        //    [AsParameters] PagingModel model,
-        //    IBlogRepository blogRepository)
-        //{
-        //    var commentList = await blogRepository
-        //        .GetPagedCommentsAsync(model, model.Name);
+        public static async Task<IResult> GetComments(
+            
+            IBlogRepository blogRepository)
+        {
+            var commentList = await blogRepository
+                .GetCommentsAsync();
 
-        //    var paginationResult = new PaginationResult<Comment>(commentList);
-        //    return Results.Ok(paginationResult);
-        //}
+            return Results.Ok(ApiResponse.Success(commentList));
+            
+        }
 
         // ChangesCommentStatus
         private static async Task<IResult> ChangesCommentStatus(

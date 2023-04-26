@@ -2,6 +2,7 @@ import TagList from "./TagList";
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { isEmptyOrSpaces } from '../../utils/Utils'
+import { useEffect } from "react";
 
 const PostList = ({ postItem }) => {
     let imageUrl = isEmptyOrSpaces(postItem.imageUrl)
@@ -9,6 +10,10 @@ const PostList = ({ postItem }) => {
         : `${postItem.imageUrl}`;
 
     let postedDate = new Date(postItem.postedDate);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     return (
         <article className='blog-entry mb-4'>
@@ -25,13 +30,13 @@ const PostList = ({ postItem }) => {
                             </Card.Title>
                             <Card.Text>
                                 <small className='text-muted'>Tác giả:</small>
-                                <Link to={`/author/${postItem.author.urlSlug}`}>
+                                <Link to={`blog/author/${postItem.author.urlSlug}`}>
                                     <span className='text-primary m-1'>
                                         {postItem.author.fullName}
                                     </span>
                                 </Link>
                                 <small className='text-muted'>Chủ đề:</small>
-                                <Link to={`/category/${postItem.category.urlSlug}`}>
+                                <Link to={`blog/category/${postItem.category.urlSlug}`}>
                                     <span className='text-primary m-1'>
                                         {postItem.category.name}
                                     </span>

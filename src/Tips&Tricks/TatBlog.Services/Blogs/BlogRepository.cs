@@ -967,6 +967,29 @@ public class BlogRepository : IBlogRepository
     #region Comment
 
     // Tìm 1 bình luận theo mã số
+    public async Task<IList<Comment>> GetCommentsAsync(bool isApproved = false, CancellationToken cancellationToken = default)
+    {
+        IQueryable<Comment> comments = _context.Set<Comment>();
+
+        if (isApproved)
+        {
+            comments = comments.Where(x => x.IsApproved);
+        }
+
+        return await comments
+            .OrderBy(x => x.Name)
+            .Select(x => new Comment()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                IsApproved = x.IsApproved,
+                PostId = x.PostId,
+                PostedDate = x.PostedDate,
+            })
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Comment> GetCommentByIDAsync(
         int id,
         CancellationToken cancellationToken = default)

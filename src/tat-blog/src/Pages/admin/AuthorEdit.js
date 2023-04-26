@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { isEmptyOrSpaces } from '../../utils/Utils';
-import { getPostById, addOrUpdateAuthor } from '../../services/BlogRepository';
+import { getAuthorById, addOrUpdateAuthor } from '../../services/BlogRepository';
 
 export default function AuthorEdit() {
     const [validated, setValidated] = useState(false);
@@ -23,12 +23,12 @@ export default function AuthorEdit() {
     id = id ?? 0;
 
     useEffect(() => {
-        document.title = 'Thêm/cập nhật bài viết';
-        getPostById(id).then(data => {
+        document.title = 'Thêm/cập nhật tác giả';
+        getAuthorById(id).then(data => {
             if (data)
                 setAuthor({
                     ...data,
-                    selectedTags: data.tags.map(tag => tag?.name).join('\r\n'),
+                    // selectedTags: data.tags.map(tag => tag?.name).join('\r\n'),
                 });
             else
                 setAuthor(initialState);
@@ -42,7 +42,10 @@ export default function AuthorEdit() {
             setValidated(true);
         } else {
             let form = new FormData(e.target);
+            form.append('id', author.id);
             addOrUpdateAuthor(form).then(data => {
+                console.log("data:")
+                console.log(data)
                 if (data)
                     alert('Đã lưu thành công!');
                 else
@@ -53,15 +56,17 @@ export default function AuthorEdit() {
 
     if (id && !isInteger(id))
         return (
-            <Navigate to={`/400?redirectTo=/admin/posts`} />)
+            <Navigate to={`/400?redirectTo=/admin/authors`} />)
     return (
         <>
             <Form
                 method='post'
                 encType='multipart/form-data'
                 onSubmit={handleSubmit}
-                noValidate validated={validated}
+                noValidate 
+                validated={validated}
             >
+                
                 <Form.Control type='hidden' name='id' value={author.id} />  <div className='row mb-3'>
                     <Form.Label className='col-sm-2 col-form-label'>
                         Tên tác giả

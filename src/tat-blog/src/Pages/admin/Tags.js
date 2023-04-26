@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
-import { getCategories} from '../../services/BlogRepository';
+import { getTags} from '../../services/BlogRepository';
 import Loading from '../../components/Loading';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -13,8 +13,7 @@ export default function Tags() {
 
         useEffect(() => {
             document.title = 'Danh sách thẻ';
-         
-            getCategories().then(data => {
+            getTags().then(data => {
                 console.log("data:")
                 console.log(data)
                     if (data)
@@ -50,7 +49,7 @@ export default function Tags() {
                                 </td>
                                 <td>{items.urlSlug}</td>
                                 <td> <Link
-                                    to={`/admin/tags/toggle/${items.id}`}
+                                    to={`/admin/tags/edit`}
                                     className='btn btn-tm mr-5'
                                     type="submit">
                                         <FontAwesomeIcon icon={faPencil}/> Cập nhật

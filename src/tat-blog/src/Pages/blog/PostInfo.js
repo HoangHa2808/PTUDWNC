@@ -26,7 +26,6 @@ const PostInfo = () => {
         });
     }, [slug]);
 
-
     let imageUrl = isEmptyOrSpaces(post.imageUrl)
         ? process.env.PUBLIC_URL + '/images/image_1.jpg'
         : `${post.imageUrl}`;
@@ -69,7 +68,7 @@ const PostInfo = () => {
                         <small className='text-muted'>
                             By:
                         </small>
-                        <Link to={`/author/${post?.author?.slug}`}
+                        <Link to={`blog/author/${post?.author?.slug}`}
                             className='text-decoration-none fw-bold'>
                             {post?.author?.fullName}
                         </Link>
@@ -79,7 +78,7 @@ const PostInfo = () => {
                         </small>
                         <Link
                             className='text-decoration-none fw-bold'
-                            to={`/category/${post?.category?.slug}`}>
+                            to={`blog/category/${post?.category?.slug}`}>
                             {post?.category?.name}
                         </Link>
 

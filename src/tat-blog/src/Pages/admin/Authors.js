@@ -57,13 +57,13 @@ export default function Authors() {
                                 <td>{items.imageUrl}</td> 
                                 <td>
                                 <Link
-                                    to={`/admin/tags/toggle/${items.id}`}
+                                    to={`/admin/authors/edit`}
                                     className='btn btn-tm mr-5'
                                     type="submit">
                                         <FontAwesomeIcon icon={faPencil}/> Cập nhật
                                 </Link>
                                      <Link
-                                    to={`/admin/posts/delete/${items.id}`}
+                                    to={`/admin/authors/delete/${items.id}`}
                                     className='btn btn-tm mr-5'
                                     onClick="return confirm('Bạn có muốn xoá không?')">
                                     <FontAwesomeIcon icon={faTrash} /> Xoá
