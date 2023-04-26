@@ -253,7 +253,8 @@ namespace TatBlog.Services.Blogs
         #endregion Phần C.1. Thực hành
 
         #region Comment
-
+        Task<IList<Comment>> GetCommentsAsync(bool isApproved = false, 
+            CancellationToken cancellationToken = default);
         Task<IPagedList<Comment>> GetPagedCommentAsync(
             int pageNumber = 1,
             int pageSize = 10,

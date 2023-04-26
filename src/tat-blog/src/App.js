@@ -33,6 +33,7 @@ import {
   AdminLayout,
   AdminHome,
   Authors,
+  AuthorEdit,
   Categories,
   Posts,
   Edit,
@@ -40,6 +41,8 @@ import {
   Comments,
 } from "./pages";
 
+import TagEdit from './pages/admin/TagEdit';
+import CategoryEdit from './pages/admin/CategoryEdit';
 
 function App() {
   return (
@@ -53,27 +56,31 @@ function App() {
                   <Route path='/' element={<BlogHome />} />
                   <Route path='blog' element={<BlogHome />} />
                   <Route path='blog/post/:year/:month/:day/:slug' element={<PostInfo />} />
-                  <Route path='author/:slug}' element={<PostItem />} />
-                  <Route path='category/:slug}' element={<PostInfo />} />
                   <Route path='blog/Contact' element={<Contact />} />
                   <Route path='blog/About' element={<About />} />
                   <Route path='blog/RSS' element={<Rss />} />
-                  <Route path='author/:slug' element={<PostsByAuthor />} />
+                  <Route path='blog/author/:slug' element={<PostsByAuthor />} />
                   <Route path='blog/category/:slug' element={<PostsByCategory />} />
                   <Route path='blog/tag/:slug' element={<PostsByTag />} />
                   <Route path='blog/archive/:year/:month' element={<PostsByTime />} />
-                  {/* <Route path='blog/post/:slug' element={<Post />} /> */}
+                  <Route path='blog/post/:slug' element={<PostInfo />} />
                 </Route>
                 
                 <Route path='/admin' element={<AdminLayout />} >
                   <Route path='/admin' element={<AdminHome />} />
                   <Route path='/admin/authors' element={<Authors />} />
+                  <Route path='/admin/authors/edit' element={<AuthorEdit />} />
+                  <Route path='/admin/authors/edit/:id' element={<AuthorEdit />} />
                   <Route path='/admin/categories' element={<Categories />} />
+                  <Route path='/admin/categories/edit' element={<CategoryEdit />} />
+                  <Route path='/admin/categories/edit/:id' element={<CategoryEdit />} />
                   <Route path='/admin/comments' element={<Comments />} />
                   <Route path='/admin/posts' element={<Posts />} />
                   <Route path='/admin/posts/edit' element={<Edit />} /> 
-                  <Route path='/admin/posts/edit/:id' element={<Edit />} />  
+                  <Route path='/admin/posts/edit/:id' element={<Edit />} />
                   <Route path='/admin/tags' element={<Tags />} />
+                  <Route path='/admin/tags/edit' element={<TagEdit />} />
+                  <Route path='/admin/tags/edit/:id' element={<TagEdit />} />
                 </Route>
 
               <Route path='*' element={<NotFound />}/>

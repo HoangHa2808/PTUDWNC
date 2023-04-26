@@ -63,7 +63,7 @@ export default function Categorties() {
                                 </td>
                                 <td>
                                 <Link
-                                    to={`/admin/categories/toggle/${items.id}`}
+                                    to={`/admin/categories/edit`}
                                     className='btn btn-tm mr-5'
                                     type="submit">
                                         <FontAwesomeIcon icon={faPencil}/> Cập nhật

@@ -14,6 +14,10 @@ export default function Posts() {
         [isVisibleLoading, setIsVisibleLoading] = useState(true),
         postFilter = useSelector(state => state.postFilter);
 
+    // const handleChange = (e) => {
+    //     setPostsList(e.target.value)
+    // }
+
     let { id } = useParams(),
         p = 1,
         ps = 100;
@@ -40,6 +44,7 @@ export default function Posts() {
         postFilter.month,
         p, ps
     ]);
+
 
     return (
         <>
@@ -71,9 +76,11 @@ export default function Posts() {
                                 <td>{item.author.fullName}</td>
                                 <td>{item.category.name}</td>
                                 <td> <Link
-                                    to={`/admin/posts/toggle/${item.id}`}
-                                    className='text-bold'
-                                    type="submit">
+                                    to={`/admin/posts/`}
+                                    // className='text-bold'
+                                    type="submit"
+                                    className='icon ml-5' id='click' onClick={'myClick()'}
+                                  >
                                     {/* class="btn btn-sm  "> */}
                                     {/* {item.published ? "btn-success" : "btn-danger"} */}
                                     {/* if (item.published) {
@@ -81,17 +88,33 @@ export default function Posts() {
                                     }else{
                                         <i class="fa fa-times"> Chưa xuất bản</i>
                                     } */}
-                                    <div className='icon ml-5'>
-                                        {item.published ? <FontAwesomeIcon icon={faCheck} /> :
+
+                                    <span>
+                                    <div >
+                                        {item.published ?<FontAwesomeIcon icon={faCheck} /> :
                                             <FontAwesomeIcon icon={faXmark} />
                                         }
+                                    <script>
+                                        if (item.published ? "btn-success" : "btn-danger") {      
+                                        function myClick() {
+                                            document.getElementById("click").script.icon=<FontAwesomeIcon icon={faCheck} />
+                                        } 
+                                        }else{
+                                            function myClick() {
+                                                document.getElementById("click").script.icon=<FontAwesomeIcon icon={faXmark} />
+                                            } 
+                                        }
+
+                                    </script>
                                     </div>
+                                    </span>
                                 </Link>
+                                 
                                 </td>
                                 <td> <Link
-                                    to={`/admin/posts/delete/${item.id}`}
+                                    to={`/admin/posts`}
                                     className='btn btn-tm mr-5'
-                                    onClick="return confirm('Bạn có muốn xoá không?')">
+                                    onClick={() => alert("Bạn có muốn xoá không?")}>
                                     <FontAwesomeIcon icon={faTrash} /> Xoá
                                 </Link></td>
                             </tr>
